@@ -167,7 +167,7 @@ def _verify_depend_dimensions(
         )
         return False
     if len(coordinate_data.shape) == 2:
-        if primary_data.shape[0] != coordinate_data.shape[0]:
+        if primary_data.shape[0] != coordinate_data.shape[0]:  # type: ignore
             logger.warning(
                 f"ISTP Compliance Warning: {coordinate_variable_name} is listed as the DEPEND_{dimension_number} for variable {primary_variable_name}, but the Epoch dimensions do not match."
             )
@@ -180,7 +180,7 @@ def _verify_depend_dimensions(
             )
             return False
 
-        if primary_data.shape[dimension_number] != coordinate_data.shape[-1]:
+        if primary_data.shape[dimension_number] != coordinate_data.shape[-1]:  # type: ignore
             logger.warning(
                 f"ISTP Compliance Warning: {coordinate_variable_name} is listed as the DEPEND_{dimension_number} for variable {primary_variable_name}, but the dimensions do not match."
             )
@@ -192,12 +192,12 @@ def _verify_depend_dimensions(
             )
             return False
 
-        if primary_data.shape[dimension_number - 1] != coordinate_data.shape[-1]:
+        if primary_data.shape[dimension_number - 1] != coordinate_data.shape[-1]:  # type: ignore
             # This is kind of a hack for now.
             # DEPEND_1 can sometimes refer to the first dimension in a variable, and sometimes the second.
             # So we require both the first and second dimensions don't match the coordinate size before we definitely
             # reject it.
-            if len(primary_data.shape) > dimension_number and primary_data.shape[dimension_number] != coordinate_data.shape[-1]:
+            if len(primary_data.shape) > dimension_number and primary_data.shape[dimension_number] != coordinate_data.shape[-1]:  # type: ignore
                 logger.warning(
                     f"ISTP Compliance Warning: {coordinate_variable_name} is listed as the DEPEND_{dimension_number} for variable {primary_variable_name}, but the dimensions do not match."
                 )
@@ -302,13 +302,13 @@ def _convert_fillvals_to_nan(var_data: npt.NDArray, var_atts: Dict[str, Any], va
         ):
             if new_data.size > 1:
                 if new_data[new_data == var_atts["FILLVAL"]].size != 0:
-                    if new_data.dtype.type == np.datetime64:
+                    if new_data.dtype.type == np.datetime64:  # type: ignore
                         new_data[new_data == var_atts["FILLVAL"]] = np.datetime64("nat")
                     else:
                         new_data[new_data == var_atts["FILLVAL"]] = np.nan
             elif new_data.size == 1:
                 if new_data == var_atts["FILLVAL"]:
-                    if new_data.dtype.type == np.datetime64:
+                    if new_data.dtype.type == np.datetime64:  # type: ignore
                         new_data[new_data == var_atts["FILLVAL"]] = np.array(np.datetime64("nat"))
                     else:
                         new_data[new_data == var_atts["FILLVAL"]] = np.array(np.nan)
@@ -423,7 +423,7 @@ def _determine_dimension_names(
     if len(var_props.Dim_Sizes) != 0 and var_props.Last_Rec >= 0:
         i = 0
         skip_first_dim = bool(record_name_found)
-        for dim_size in var_data.shape:
+        for dim_size in var_data.shape:  # type: ignore
             if skip_first_dim:
                 skip_first_dim = False
                 continue
@@ -450,7 +450,7 @@ def _determine_dimension_names(
                         depend_i_variable_data.size != 0
                         and len(depend_i_variable_data.shape) == 1
                         and len(var_data.shape) > dimension_number
-                        and (depend_i_variable_data.shape[0] == var_data.shape[dimension_number])
+                        and (depend_i_variable_data.shape[0] == var_data.shape[dimension_number])  # type: ignore
                     ):
                         return_list.append((depend_i_variable_name, dim_size, True, False))
                         continue
@@ -458,7 +458,7 @@ def _determine_dimension_names(
                         len(depend_i_variable_data.shape) > 1
                         and depend_i_variable_data.size != 0
                         and len(var_data.shape) > dimension_number
-                        and (depend_i_variable_data.shape[1] == var_data.shape[dimension_number])
+                        and (depend_i_variable_data.shape[1] == var_data.shape[dimension_number])  # type: ignore
                     ):
                         return_list.append((depend_i_variable_name + "_dim", dim_size, True, False))
                         continue
@@ -478,7 +478,7 @@ def _determine_dimension_names(
                         depend_i_variable_data.size != 0
                         and len(depend_i_variable_data.shape) == 1
                         and len(var_data.shape) > i - 1
-                        and (depend_i_variable_data.shape[0] == var_data.shape[i - 1])
+                        and (depend_i_variable_data.shape[0] == var_data.shape[i - 1])  # type: ignore
                     ):
                         logger.warning(
                             f"Warning: Variable {var_name} has no determined time-varying component, but  "
@@ -491,7 +491,7 @@ def _determine_dimension_names(
                         len(depend_i_variable_data.shape) > 1
                         and depend_i_variable_data.size != 0
                         and len(var_data.shape) > i - 1
-                        and (depend_i_variable_data.shape[1] == var_data.shape[i - 1])
+                        and (depend_i_variable_data.shape[1] == var_data.shape[i - 1])  # type: ignore
                     ):
                         logger.warning(
                             f"Warning: Variable {var_name} has no determined time-varying component, but  "
@@ -800,7 +800,7 @@ def cdf_to_xarray(filename: str, to_datetime: bool = True, to_unixtime: bool = F
                         else:
                             created_vars[lab].dims = created_vars[var_name].dims
                     else:
-                        if created_vars[lab].shape[0] != created_vars[var_name].shape[-1]:
+                        if created_vars[lab].shape[0] != created_vars[var_name].shape[-1]:  # type: ignore
                             logger.warning(
                                 f"Warning, label variable {lab} does not match the expected dimension sizes of {var_name}"
                             )
@@ -812,7 +812,6 @@ def cdf_to_xarray(filename: str, to_datetime: bool = True, to_unixtime: bool = F
             # If there is an uncertainty variable, link it to the uncertainty along a dimension
             if created_vars[var_name].size == created_vars[uncertainty_variables[var_name]].size:
                 created_vars[var_name].dims = created_vars[uncertainty_variables[var_name]].dims
-                created_coord_vars[var_name] = created_vars[var_name]
             else:
                 created_data_vars[var_name] = created_vars[var_name]
         else:

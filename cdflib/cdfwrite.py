@@ -1431,18 +1431,18 @@ class CDF:
                 return numElems, self.CDF_EPOCH16
             elif hasattr(value, "dtype"):
                 # We are likely dealing with a numpy number at this point
-                if value.dtype.type in (np.int8, np.int16, np.int32, np.int64):
+                if value.dtype.type in (np.int8, np.int16, np.int32, np.int64):  # type: ignore
                     return numElems, self.CDF_INT8
-                elif value.dtype.type == np.complex128:
+                elif value.dtype.type == np.complex128:  # type: ignore
                     return numElems, self.CDF_EPOCH16
-                elif value.dtype.type in (np.uint8, np.uint16, np.uint32):
+                elif value.dtype.type in (np.uint8, np.uint16, np.uint32):  # type: ignore
                     return numElems, self.CDF_UINT4
-                elif value.dtype.type in (np.float16, np.float32, np.float64):
+                elif value.dtype.type in (np.float16, np.float32, np.float64):  # type: ignore
                     return numElems, self.CDF_DOUBLE
-                elif value.dtype.type == np.str_:
+                elif value.dtype.type == np.str_:  # type: ignore
                     return numElems, self.CDF_CHAR
                 else:
-                    logger.warning(f"Invalid data type for data {value.dtype.type}.... Skip")
+                    logger.warning(f"Invalid data type for data {value.dtype.type}.... Skip")  # type: ignore
                     return None, None
             else:
                 logger.warning("Invalid data type for data.... Skip")
@@ -2273,7 +2273,7 @@ class CDF:
         else:
             recs = len(indata)
 
-        if npdata.dtype.kind in ("S", "U"):
+        if npdata.dtype.kind in ("S", "U"):  # type: ignore
             dt_string = self._convert_type(data_type)
             form = str(recs * num_values * num_elems) + dt_string
             form2 = tofrom + str(recs * num_values * num_elems) + dt_string
@@ -2286,9 +2286,9 @@ class CDF:
             if tofrom in ("<", ">"):
                 # Only swap if our current endianness is not already correct.
                 # Note: '|' means not applicable (e.g., for strings) or already in a “neutral” byte order.
-                if npdata.dtype.byteorder not in (tofrom, "|"):
+                if npdata.dtype.byteorder not in (tofrom, "|"):  # type: ignore
                     # byteswap + newbyteorder will produce a correctly endianness-tagged array.
-                    npdata.byteswap(inplace=True).newbyteorder()  # type: ignore
+                    npdata = npdata.byteswap().view(npdata.dtype.newbyteorder())  # type: ignore
 
         return recs, npdata.tobytes()
 

@@ -116,7 +116,7 @@ def _is_datetime64_array(data: Any) -> bool:
     # Returns true if the input has a type of np.datetime64
     try:
         x = np.array(data)
-        return x.dtype.type == np.datetime64
+        return x.dtype.type == np.datetime64  # type: ignore
     except:
         return False
 
@@ -172,7 +172,7 @@ def _dtype_to_cdf_type(var: xr.DataArray, terminate_on_warning: bool = False) ->
         cdf_data_type = "CDF_UINT4"
     elif numpy_data_type == np.complex128:
         cdf_data_type = "CDF_EPOCH16"
-    elif numpy_data_type.type in (np.str_, np.bytes_):
+    elif numpy_data_type.type in (np.str_, np.bytes_):  # type: ignore
         element_size = int(numpy_data_type.str[2:])  # The length of the longest string in the numpy array
     elif var.dtype == object:  # This commonly means we either have multidimensional arrays of strings or datetime objects
         if _is_datetime_array(var.data):
@@ -189,7 +189,7 @@ def _dtype_to_cdf_type(var: xr.DataArray, terminate_on_warning: bool = False) ->
                     f"NOT SUPPORTED: Data in variable {var.name} has data type {var.dtype}.  Attempting to convert it to strings ran into the error: {str(e)}",
                     terminate_on_warning,
                 )
-    elif var.dtype.type == np.datetime64:
+    elif var.dtype.type == np.datetime64:  # type: ignore
         cdf_data_type = "CDF_TIME_TT2000"
     else:
         _warn_or_except(f"NOT SUPPORTED: Data in variable {var.name} has data type of {var.dtype}.", terminate_on_warning)
@@ -213,7 +213,7 @@ def _convert_nans_to_fillval(var_data: xr.Dataset, terminate_on_warning: bool = 
     for var_name in new_data.data_vars:
         data_array = new_data[var_name]
         fill_value = _dtype_to_fillval(data_array)
-        if fill_value.dtype.type != np.datetime64:
+        if fill_value.dtype.type != np.datetime64:  # type: ignore
             try:
                 new_data[var_name] = new_data[var_name].fillna(fill_value)
             except:
@@ -229,7 +229,7 @@ def _convert_nans_to_fillval(var_data: xr.Dataset, terminate_on_warning: bool = 
     for var_name in new_data.coords:
         data_array = new_data[var_name]
         fill_value = _dtype_to_fillval(data_array)
-        if fill_value.dtype.type != np.datetime64:
+        if fill_value.dtype.type != np.datetime64:  # type: ignore
             try:
                 new_data[var_name] = new_data[var_name].fillna(fill_value)
             except:
@@ -278,7 +278,7 @@ def _verify_depend_dimensions(
             return False
 
         if len(coordinate_data.shape) == 2:
-            if primary_data.shape[0] != coordinate_data.shape[0]:
+            if primary_data.shape[0] != coordinate_data.shape[0]:  # type: ignore
                 _warn_or_except(
                     f"ISTP Compliance Warning: {coordinate_variable_name} is listed as the DEPEND_{dimension_number} for variable {primary_variable_name}, but the Epoch dimensions do not match.",
                     terminate_on_warning,
@@ -318,14 +318,14 @@ def _verify_depend_dimensions(
         # Check that the size of the dimension that DEPEND_{i} is refering to is
         # also the same size of the DEPEND_{i}'s last dimension
         if any(k.lower() == "depend_0" for k in dataset[primary_variable_name].attrs):
-            if primary_data.shape[dimension_number] != coordinate_data.shape[-1]:
+            if primary_data.shape[dimension_number] != coordinate_data.shape[-1]:  # type: ignore
                 _warn_or_except(
                     f"ISTP Compliance Warning: {coordinate_variable_name} is listed as the DEPEND_{dimension_number} for variable {primary_variable_name}, but the dimensions do not match.",
                     terminate_on_warning,
                 )
                 return False
         else:
-            if primary_data.shape[dimension_number - 1] != coordinate_data.shape[-1]:
+            if primary_data.shape[dimension_number - 1] != coordinate_data.shape[-1]:  # type: ignore
                 _warn_or_except(
                     f"ISTP Compliance Warning: {coordinate_variable_name} is listed as the DEPEND_{dimension_number} for variable {primary_variable_name}, but the dimensions do not match.",
                     terminate_on_warning,
@@ -1098,7 +1098,7 @@ def xarray_to_cdf(
 
             if len(d[var].dims) > 0:
                 if var in time_varying_dimensions or var in depend_0_vars:
-                    dim_sizes = d[var].shape[1:]
+                    dim_sizes = d[var].shape[1:]  # type: ignore
                     record_vary = True
                 else:
                     dim_sizes = d[var].shape

@@ -143,11 +143,11 @@ class CDFepoch:
             1D if scalar input, 2D otherwise.
         """
         epochs = np.array(epochs)
-        if epochs.dtype.type == np.int64:
+        if epochs.dtype.type == np.int64:  # type: ignore
             return CDFepoch.breakdown_tt2000(epochs)
-        elif epochs.dtype.type == np.float64:
+        elif epochs.dtype.type == np.float64:  # type: ignore
             return CDFepoch.breakdown_epoch(epochs)
-        elif epochs.dtype.type == np.complex128:
+        elif epochs.dtype.type == np.complex128:  # type: ignore
             return CDFepoch.breakdown_epoch16(epochs)
         else:
             raise TypeError(f"Not sure how to handle type {epochs.dtype}")
@@ -356,7 +356,7 @@ class CDFepoch:
             raise TypeError("datetime must be in list form")
 
         datetimes = np.atleast_2d(datetimes)
-        items = datetimes.shape[1]
+        items = datetimes.shape[1]  # type: ignore
 
         if items == 7:
             return _squeeze_or_scalar_real(CDFepoch.compute_epoch(datetimes))
@@ -1206,7 +1206,7 @@ class CDFepoch:
         if isinstance(epochs, (complex, np.complex128)) or isinstance(epochs, (list, tuple, np.ndarray)):
             new_epochs = np.asarray(epochs)
             if new_epochs.shape == ():
-                cshape = []
+                cshape: list[cdf_epoch16_type] = []
                 new_epochs = np.array([epochs])
             else:
                 cshape = list(new_epochs.shape)
@@ -1214,7 +1214,7 @@ class CDFepoch:
             raise TypeError("Bad data for epochs: {:}".format(type(epochs)))
 
         cshape.append(10)
-        components = np.full(shape=cshape, fill_value=[9999, 12, 31, 23, 59, 59, 999, 999, 999, 999])
+        components = np.full(shape=cshape, fill_value=[9999, 12, 31, 23, 59, 59, 999, 999, 999, 999])  # type: ignore
         for i, epoch16 in enumerate(new_epochs):
             # Ignore fill values
             if (epoch16.real != -1.0e31) or (epoch16.imag != -1.0e31) or np.isnan(epoch16):
@@ -1402,7 +1402,7 @@ class CDFepoch:
         # TODO Add docstring. What is the output format?
 
         new_dates = np.atleast_2d(dates)
-        count = new_dates.shape[0]
+        count = new_dates.shape[0]  # type: ignore
 
         epochs = []
         for x in range(0, count):
@@ -1540,7 +1540,7 @@ class CDFepoch:
         ):
             new_epochs = np.asarray(epochs).astype(float)
             if new_epochs.shape == ():
-                cshape = []
+                cshape: list[cdf_epoch_type] = []
                 new_epochs = np.array([epochs], dtype=float)
             else:
                 cshape = list(new_epochs.shape)
@@ -1549,7 +1549,7 @@ class CDFepoch:
 
         # Initialize output to default values
         cshape.append(7)
-        components = np.full(shape=cshape, fill_value=[9999, 12, 31, 23, 59, 59, 999])
+        components = np.full(shape=cshape, fill_value=[9999, 12, 31, 23, 59, 59, 999])  # type: ignore
         for i, epoch in enumerate(new_epochs):
             # Ignore fill values and NaNs
             if (epoch != -1.0e31) and not np.isnan(epoch):

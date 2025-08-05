@@ -2,6 +2,12 @@
 Changelog
 =========
 
+1.3.5
+=====
+cdf_to_xarray
+-------------
+Stopping uncertainty "DELTA_VAR" variables from becoming coordinate variables
+
 1.3.4
 =====
 Performance improvements in cdfwrite
