@@ -6,7 +6,11 @@ Changelog
 =====
 cdf_to_xarray
 -------------
-Stopping uncertainty "DELTA_VAR" variables from becoming coordinate variables
+- Stopping uncertainty "DELTA_VAR" variables from becoming coordinate variables
+
+cdfwrite
+--------
+- newbyteorder call was changed to update with newer version of numpy
 
 1.3.4
 =====
