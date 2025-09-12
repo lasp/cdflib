@@ -4,7 +4,7 @@ from typing import Any, Dict
 import numpy as np
 import pytest
 
-from cdflib import cdfread, cdfwrite
+from cdflib import cdfread, cdfwrite, CDF
 from cdflib.xarray import cdf_to_xarray
 
 R = Path(__file__).parent
@@ -660,7 +660,7 @@ def test_string_input_but_number_type(tmp_path):
     cdf.close()
 
     # Reading it back in would cause an error
-    cdf_to_xarray(tmp_path / "test.cdf")
+    cdf_to_xarray(CDF(tmp_path / "test.cdf"))
 
 
 def test_array_string_input_but_number_type(tmp_path):
@@ -681,4 +681,4 @@ def test_array_string_input_but_number_type(tmp_path):
     cdf.close()
 
     # Reading it back in would cause an error
-    cdf_to_xarray(tmp_path / "test.cdf")
+    cdf_to_xarray(CDF(tmp_path / "test.cdf"))
