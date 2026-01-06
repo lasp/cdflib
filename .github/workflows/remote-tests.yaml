@@ -24,4 +24,4 @@ jobs:
 
       - name: Run Remote Tests
         # We explicitly tell pytest to run ONLY the remote_data tests
-        run: pytest -m remote_data
+        run: pytest --remote-data
