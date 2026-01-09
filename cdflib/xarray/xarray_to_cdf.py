@@ -221,7 +221,7 @@ def _convert_nans_to_fillval(var_data: xr.Dataset, terminate_on_warning: bool = 
         var_att_dict = {}
         for att in data_array.attrs:
             try:
-                var_att_dict[att] = np.nan_to_num(data_array.attrs[att], -1e31)  # type: ignore
+                var_att_dict[att] = np.nan_to_num(data_array.attrs[att], nan=fill_value)  # type: ignore
             except:
                 var_att_dict[att] = data_array.attrs[att]
         new_data[var_name].attrs = var_att_dict
@@ -237,7 +237,7 @@ def _convert_nans_to_fillval(var_data: xr.Dataset, terminate_on_warning: bool = 
         var_att_dict = {}
         for att in data_array.attrs:
             try:
-                var_att_dict[att] = np.nan_to_num(data_array.attrs[att], -1e31)  # type: ignore
+                var_att_dict[att] = np.nan_to_num(data_array.attrs[att], nan=fill_value)  # type: ignore
             except:
                 var_att_dict[att] = data_array.attrs[att]
         new_data[var_name].attrs = var_att_dict
