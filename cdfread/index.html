@@ -1,0 +1,2542 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../cdfwrite/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Reading CDFs - cdflib</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cdfread" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="cdflib" class="md-header__button md-logo" aria-label="cdflib" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            cdflib
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Reading CDFs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="lime"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/lasp/cdflib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Tools
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../xarray/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  xarray
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../development/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Development
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="cdflib" class="md-nav__button md-logo" aria-label="cdflib" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    cdflib
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/lasp/cdflib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading CDFs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cdfwrite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing CDFs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cdfepoch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time Conversions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataclasses/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    dataclasses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../xarray/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    xarray
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../xarray/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    xarray
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href=".." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="./" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Tools
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/lasp/cdflib/edit/master/docs/cdfread.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/lasp/cdflib/raw/master/docs/cdfread.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="cdfread">cdfread<a class="headerlink" href="#cdfread" title="Permanent link">¤</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h1 id="cdflib.cdfread" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <span class="doc doc-object-name doc-module-name">cdfread</span>
+
+
+<a href="#cdflib.cdfread" class="headerlink" title="Permanent link">¤</a></h1>
+
+    <div class="doc doc-contents first">
+
+          
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Classes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF">CDF</a></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>Read a CDF file into the CDF object. This object contains methods to load</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cdflib.cdfread.CDF" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">CDF</span>
+
+
+<a href="#cdflib.cdfread.CDF" class="headerlink" title="Permanent link">¤</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">CDF</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF(path)">path</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Union&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;pathlib.Path&lt;/code&gt;" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF(validate)">validate</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF(string_encoding)">string_encoding</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF(s3_read_method)">s3_read_method</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Read a CDF file into the CDF object. This object contains methods to load
+the cdf file information, variable names, and values.</p>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="language-python highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">cdflib</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cdf_file</span> <span class="o">=</span> <span class="n">cdflib</span><span class="o">.</span><span class="n">CDF</span><span class="p">(</span><span class="s1">&#39;/path/to/cdf_file.cdf&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cdf_file</span><span class="o">.</span><span class="n">cdf_info</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">cdf_file</span><span class="o">.</span><span class="n">varget</span><span class="p">(</span><span class="s2">&quot;NameOfVariable&quot;</span><span class="p">,</span> <span class="n">startrec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">endrec</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+</code></pre></div>
+</details>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+<h3 id="cdflib.cdfread.CDF(path)" class="doc doc-heading doc-heading-parameter">                  <code>path</code>
+<a href="#cdflib.cdfread.CDF(path)" class="headerlink" title="Permanent link">¤</a></h3>            </td>
+            <td>
+                  <code>(<a class="autorefs autorefs-external" title="&lt;code&gt;pathlib.Path&lt;/code&gt;" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>)</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to CDF file.  This can be a link to a file in an S3 bucket as well.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+<h3 id="cdflib.cdfread.CDF(validate)" class="doc doc-heading doc-heading-parameter">                  <code>validate</code>
+<a href="#cdflib.cdfread.CDF(validate)" class="headerlink" title="Permanent link">¤</a></h3>            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If True, validate the MD5 checksum of the CDF file.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+<h3 id="cdflib.cdfread.CDF(string_encoding)" class="doc doc-heading doc-heading-parameter">                  <code>string_encoding</code>
+<a href="#cdflib.cdfread.CDF(string_encoding)" class="headerlink" title="Permanent link">¤</a></h3>            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The encoding used to read strings. Defaults to 'ascii', which is what
+the CDF internal format description prescribes as the encoding for
+character strings. Other encodings may have been used to create files
+however, and this keyword argument gives users the flexibility to read
+those files.</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;ascii&#39;</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+<h3 id="cdflib.cdfread.CDF(s3_read_method)" class="doc doc-heading doc-heading-parameter">                  <code>s3_read_method</code>
+<a href="#cdflib.cdfread.CDF(s3_read_method)" class="headerlink" title="Permanent link">¤</a></h3>            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the user is specifying a file that lives within an AWS S3 bucket, this variable
+defines how the file is read in.  The choices are:
+- 1 will read the file into memory to load in memory)
+- 2 will download the file to a tmp directory
+- 3 reads the file in chunks directly from S3 over https</p>
+              </div>
+            </td>
+            <td>
+                  <code>1</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="note" open>
+  <summary>Notes</summary>
+  <p>An open file handle to the CDF file remains whilst a CDF object is live.
+It is automatically cleaned up with the CDF instance is deleted.</p>
+</details>
+          
+
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Methods:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.attget">attget</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Returns the value of the attribute at the entry number provided.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.attinq">attinq</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Get attribute information.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.cdf_info">cdf_info</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Returns basic CDF information.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.globalattsget">globalattsget</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Gets all global attributes.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.varattsget">varattsget</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Gets all variable attributes.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.varget">varget</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Returns the variable data.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.varinq">varinq</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Get basic variable information.</p>
+                </div>
+              </td>
+            </tr>
+      </tbody>
+    </table>
+
+
+
+                  <details class="mkdocstrings-source">
+                    <summary>Source code in <code>cdflib/cdfread.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">string_encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ascii&quot;</span><span class="p">,</span> <span class="n">s3_read_method</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : Path, str</span>
+<span class="sd">        Path to CDF file.  This can be a link to a file in an S3 bucket as well.</span>
+<span class="sd">    validate : bool, optional</span>
+<span class="sd">        If True, validate the MD5 checksum of the CDF file.</span>
+<span class="sd">    string_encoding : str, optional</span>
+<span class="sd">        The encoding used to read strings. Defaults to &#39;ascii&#39;, which is what</span>
+<span class="sd">        the CDF internal format description prescribes as the encoding for</span>
+<span class="sd">        character strings. Other encodings may have been used to create files</span>
+<span class="sd">        however, and this keyword argument gives users the flexibility to read</span>
+<span class="sd">        those files.</span>
+<span class="sd">    s3_read_method: int, optional</span>
+<span class="sd">        If the user is specifying a file that lives within an AWS S3 bucket, this variable</span>
+<span class="sd">        defines how the file is read in.  The choices are:</span>
+<span class="sd">        - 1 will read the file into memory to load in memory)</span>
+<span class="sd">        - 2 will download the file to a tmp directory</span>
+<span class="sd">        - 3 reads the file in chunks directly from S3 over https</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    An open file handle to the CDF file remains whilst a CDF object is live.</span>
+<span class="sd">    It is automatically cleaned up with the CDF instance is deleted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;s3://&quot;</span><span class="p">):</span>
+        <span class="c1"># later put in s3 &#39;does it exist&#39; checker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">=</span> <span class="s2">&quot;s3&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">fname</span>  <span class="c1"># path for files, fname for urls and S3</span>
+    <span class="k">elif</span> <span class="n">fname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;https://&quot;</span><span class="p">):</span>
+        <span class="c1"># later put in url 404 &#39;does it exist&#39; checker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">=</span> <span class="s2">&quot;url&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">fname</span>  <span class="c1"># path for files, fname for urls and S3</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">=</span> <span class="s2">&quot;file&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.cdf&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">path</span>  <span class="c1"># path for files, fname for urls and S3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">string_encoding</span> <span class="o">=</span> <span class="n">string_encoding</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_or_url_or_s3_handler</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="p">,</span> <span class="n">s3_read_method</span><span class="p">)</span>
+    <span class="n">magic_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+    <span class="n">compressed_bool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">magic_number</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;cdf30001&quot;</span><span class="p">,</span> <span class="s2">&quot;cdf26002&quot;</span><span class="p">,</span> <span class="s2">&quot;0000ffff&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not a CDF file or a non-supported CDF!&quot;</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">cdfversion</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="n">magic_number</span> <span class="o">==</span> <span class="s2">&quot;cdf30001&quot;</span> <span class="k">else</span> <span class="mi">2</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_compressed</span> <span class="o">=</span> <span class="ow">not</span> <span class="p">(</span><span class="n">compressed_bool</span> <span class="o">==</span> <span class="s2">&quot;0000ffff&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">compressed_file</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">temp_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compressed</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;url&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;s3&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s3_read_method</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="c1"># extra step, read entire file</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="o">=</span> <span class="n">s3_fetchall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">fhandle</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_unstream_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uncompress_file</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;Decompression was unsuccessful.  Only GZIP compression is currently supported.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">compressed_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">=</span> <span class="s2">&quot;file&quot;</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdfversion</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">cdr_info</span><span class="p">,</span> <span class="n">foffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_cdr</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">gdr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_gdr</span><span class="p">(</span><span class="n">foffs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cdr_info</span><span class="p">,</span> <span class="n">foffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_cdr2</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">gdr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_gdr2</span><span class="p">(</span><span class="n">foffs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cdr_info</span><span class="o">.</span><span class="n">md5</span> <span class="ow">and</span> <span class="n">validate</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_md5_validation</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;This file fails the md5 checksum.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cdr_info</span><span class="o">.</span><span class="n">format_</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;This package does not support multi-format CDF&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cdr_info</span><span class="o">.</span><span class="n">encoding</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;This package does not support CDFs with this &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoding_token</span><span class="p">(</span><span class="n">cdr_info</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; encoding&quot;</span><span class="p">)</span>
+
+    <span class="c1"># SET GLOBAL VARIABLES</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_post25</span> <span class="o">=</span> <span class="n">cdr_info</span><span class="o">.</span><span class="n">post25</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="n">cdr_info</span><span class="o">.</span><span class="n">version</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span> <span class="o">=</span> <span class="n">cdr_info</span><span class="o">.</span><span class="n">encoding</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_majority</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_major_token</span><span class="p">(</span><span class="n">cdr_info</span><span class="o">.</span><span class="n">majority</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_copyright</span> <span class="o">=</span> <span class="n">cdr_info</span><span class="o">.</span><span class="n">copyright_</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_md5</span> <span class="o">=</span> <span class="n">cdr_info</span><span class="o">.</span><span class="n">md5</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_first_zvariable</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">first_zvariable</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_first_rvariable</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">first_rvariable</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_first_adr</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">first_adr</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">num_zvariables</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_num_rvariable</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">num_rvariables</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_rvariables_num_dims</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">rvariables_num_dims</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_rvariables_dim_sizes</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">rvariables_dim_sizes</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_num_att</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">num_attributes</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_num_rdim</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">rvariables_num_dims</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_rdim_sizes</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">rvariables_dim_sizes</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdfversion</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_leap_second_updated</span> <span class="o">=</span> <span class="n">gdr_info</span><span class="o">.</span><span class="n">leapsecond_updated</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compressed_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compressed_file</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="cdflib.cdfread.CDF.attget" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">attget</span>
+
+
+<a href="#cdflib.cdfread.CDF.attget" class="headerlink" title="Permanent link">¤</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">attget</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.attget(attribute)">attribute</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Union&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.attget(entry)">entry</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Optional&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Union&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" href="../dataclasses/#cdflib.dataclasses.AttData">AttData</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Returns the value of the attribute at the entry number provided.</p>
+<p>A variable name can be used instead of its corresponding
+entry number.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+<h4 id="cdflib.cdfread.CDF.attget(attribute)" class="doc doc-heading doc-heading-parameter">                  <code>attribute</code>
+<a href="#cdflib.cdfread.CDF.attget(attribute)" class="headerlink" title="Permanent link">¤</a></h4>            </td>
+            <td>
+                  <code>(<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>)</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Attribute name or number to get.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+<h4 id="cdflib.cdfread.CDF.attget(entry)" class="doc doc-heading doc-heading-parameter">                  <code>entry</code>
+<a href="#cdflib.cdfread.CDF.attget(entry)" class="headerlink" title="Permanent link">¤</a></h4>            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" href="../dataclasses/#cdflib.dataclasses.AttData">AttData</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+          
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>cdflib/cdfread.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">attget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">entry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AttData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the value of the attribute at the entry number provided.</span>
+
+<span class="sd">    A variable name can be used instead of its corresponding</span>
+<span class="sd">    entry number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attribute : str, int</span>
+<span class="sd">        Attribute name or number to get.</span>
+<span class="sd">    entry : int, optional</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    AttData</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Starting position</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_adr</span>
+
+    <span class="c1"># Get Correct ADR</span>
+    <span class="n">adr_info</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_att</span><span class="p">):</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">next_adr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_adr_fast</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">attribute</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">adr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_adr</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">adr_info</span><span class="o">.</span><span class="n">scope</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># If the user has specified a string entry, they are obviously looking for a variable attribute.</span>
+                    <span class="c1"># Filter out any global attributes that may have the same name.</span>
+                    <span class="n">adr_info</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">position</span> <span class="o">=</span> <span class="n">next_adr</span>
+                    <span class="k">continue</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">position</span> <span class="o">=</span> <span class="n">next_adr</span>
+
+        <span class="k">if</span> <span class="n">adr_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No attribute </span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2"> for entry </span><span class="si">{</span><span class="n">entry</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">attribute</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">attribute</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_att</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No attribute </span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="si">}</span><span class="s2"> has to be a number.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">attribute</span><span class="p">):</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">next_adr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_adr_fast</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="n">next_adr</span>
+        <span class="n">adr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_adr</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please set attribute keyword equal to &quot;</span> <span class="s2">&quot;the name or number of an attribute&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Find the correct entry from the &quot;entry&quot; variable</span>
+    <span class="k">if</span> <span class="n">adr_info</span><span class="o">.</span><span class="n">scope</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;&quot;entry&quot; must be an integer&#39;</span><span class="p">)</span>
+        <span class="n">num_entry_string</span> <span class="o">=</span> <span class="s2">&quot;num_gr_entry&quot;</span>
+        <span class="n">first_entry_string</span> <span class="o">=</span> <span class="s2">&quot;first_gr_entry&quot;</span>
+        <span class="n">max_entry_string</span> <span class="o">=</span> <span class="s2">&quot;max_gr_entry&quot;</span>
+        <span class="n">entry_num</span> <span class="o">=</span> <span class="n">entry</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">var_num</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">zvar</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># a zVariable?</span>
+            <span class="n">positionx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_zvariable</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span><span class="p">):</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">vdr_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_vdr_fast</span><span class="p">(</span><span class="n">positionx</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">entry</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">var_num</span> <span class="o">=</span> <span class="n">x</span>
+                    <span class="n">zvar</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+                <span class="n">positionx</span> <span class="o">=</span> <span class="n">vdr_next</span>
+            <span class="k">if</span> <span class="n">var_num</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># a rVariable?</span>
+                <span class="n">positionx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_rvariable</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_rvariable</span><span class="p">):</span>
+                    <span class="n">name</span><span class="p">,</span> <span class="n">vdr_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_vdr_fast</span><span class="p">(</span><span class="n">positionx</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">entry</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                        <span class="n">var_num</span> <span class="o">=</span> <span class="n">x</span>
+                        <span class="k">break</span>
+                    <span class="n">positionx</span> <span class="o">=</span> <span class="n">vdr_next</span>
+            <span class="k">if</span> <span class="n">var_num</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No variable by this name: </span><span class="si">{</span><span class="n">entry</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">entry_num</span> <span class="o">=</span> <span class="n">var_num</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_rvariable</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This CDF has both r and z variables. &quot;</span> <span class="s2">&quot;Use variable name instead&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">zvar</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">entry_num</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="k">if</span> <span class="n">zvar</span><span class="p">:</span>
+            <span class="n">num_entry_string</span> <span class="o">=</span> <span class="s2">&quot;num_z_entry&quot;</span>
+            <span class="n">first_entry_string</span> <span class="o">=</span> <span class="s2">&quot;first_z_entry&quot;</span>
+            <span class="n">max_entry_string</span> <span class="o">=</span> <span class="s2">&quot;max_z_entry&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">num_entry_string</span> <span class="o">=</span> <span class="s2">&quot;num_gr_entry&quot;</span>
+            <span class="n">first_entry_string</span> <span class="o">=</span> <span class="s2">&quot;first_gr_entry&quot;</span>
+            <span class="n">max_entry_string</span> <span class="o">=</span> <span class="s2">&quot;max_gr_entry&quot;</span>
+    <span class="k">if</span> <span class="n">entry_num</span> <span class="o">&gt;</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">adr_info</span><span class="p">,</span> <span class="n">max_entry_string</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The entry does not exist&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_attdata</span><span class="p">(</span><span class="n">adr_info</span><span class="p">,</span> <span class="n">entry_num</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">adr_info</span><span class="p">,</span> <span class="n">num_entry_string</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">adr_info</span><span class="p">,</span> <span class="n">first_entry_string</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="cdflib.cdfread.CDF.attinq" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">attinq</span>
+
+
+<a href="#cdflib.cdfread.CDF.attinq" class="headerlink" title="Permanent link">¤</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">attinq</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.attinq(attribute)">attribute</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Union&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="cdflib.dataclasses.ADRInfo">ADRInfo</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Get attribute information.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+<h4 id="cdflib.cdfread.CDF.attinq(attribute)" class="doc doc-heading doc-heading-parameter">                  <code>attribute</code>
+<a href="#cdflib.cdfread.CDF.attinq(attribute)" class="headerlink" title="Permanent link">¤</a></h4>            </td>
+            <td>
+                  <code>(<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>)</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Attribute to get information for.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="cdflib.dataclasses.ADRInfo">ADRInfo</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+          
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>cdflib/cdfread.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">attinq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ADRInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get attribute information.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attribute : str, int</span>
+<span class="sd">        Attribute to get information for.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ADRInfo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_adr</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_att</span><span class="p">):</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">next_adr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_adr_fast</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">attribute</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_adr</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+            <span class="n">position</span> <span class="o">=</span> <span class="n">next_adr</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No attribute </span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">attribute</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">attribute</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No attribute </span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">attribute</span><span class="p">):</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">next_adr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_adr_fast</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="n">next_adr</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_adr</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;attribute keyword must be a string or integer&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="cdflib.cdfread.CDF.cdf_info" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">cdf_info</span>
+
+
+<a href="#cdflib.cdfread.CDF.cdf_info" class="headerlink" title="Permanent link">¤</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">cdf_info</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" href="../dataclasses/#cdflib.dataclasses.CDFInfo">CDFInfo</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Returns basic CDF information.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" href="../dataclasses/#cdflib.dataclasses.CDFInfo">CDFInfo</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+          
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>cdflib/cdfread.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cdf_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CDFInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns basic CDF information.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    CDFInfo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">varnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_varnames</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">CDFInfo</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_version</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_majority</span><span class="p">,</span>
+        <span class="n">varnames</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">varnames</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_attnames</span><span class="p">(),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_copyright</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_md5</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_rdim</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rdim_sizes</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compressed</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="cdflib.cdfread.CDF.globalattsget" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">globalattsget</span>
+
+
+<a href="#cdflib.cdfread.CDF.globalattsget" class="headerlink" title="Permanent link">¤</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">globalattsget</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Dict&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.List&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Union&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><span title="numpy.ndarray">ndarray</span></span><span class="p">]]]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Gets all global attributes.</p>
+<p>This function returns all of the global attribute entries,
+in a dictionary (in the form of <code>'attribute': {entry: value}</code>
+pairs) from a CDF.</p>
+
+          
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>cdflib/cdfread.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">globalattsget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets all global attributes.</span>
+
+<span class="sd">    This function returns all of the global attribute entries,</span>
+<span class="sd">    in a dictionary (in the form of ``&#39;attribute&#39;: {entry: value}``</span>
+<span class="sd">    pairs) from a CDF.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">byte_loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_adr</span>
+    <span class="n">return_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_att</span><span class="p">):</span>
+        <span class="n">adr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_adr</span><span class="p">(</span><span class="n">byte_loc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">adr_info</span><span class="o">.</span><span class="n">scope</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">byte_loc</span> <span class="o">=</span> <span class="n">adr_info</span><span class="o">.</span><span class="n">next_adr_loc</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">adr_info</span><span class="o">.</span><span class="n">num_gr_entry</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">byte_loc</span> <span class="o">=</span> <span class="n">adr_info</span><span class="o">.</span><span class="n">next_adr_loc</span>
+            <span class="k">continue</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">aedr_byte_loc</span> <span class="o">=</span> <span class="n">adr_info</span><span class="o">.</span><span class="n">first_gr_entry</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">adr_info</span><span class="o">.</span><span class="n">num_gr_entry</span><span class="p">):</span>
+            <span class="n">aedr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_aedr</span><span class="p">(</span><span class="n">aedr_byte_loc</span><span class="p">)</span>
+            <span class="n">entryData</span> <span class="o">=</span> <span class="n">aedr_info</span><span class="o">.</span><span class="n">entry</span>
+            <span class="c1"># This exists to get rid of extraneous numpy arrays</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entryData</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entryData</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">entryData</span> <span class="o">=</span> <span class="n">entryData</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entryData</span><span class="p">)</span>
+            <span class="n">aedr_byte_loc</span> <span class="o">=</span> <span class="n">aedr_info</span><span class="o">.</span><span class="n">next_aedr</span>
+
+        <span class="n">return_dict</span><span class="p">[</span><span class="n">adr_info</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">entries</span>
+        <span class="n">byte_loc</span> <span class="o">=</span> <span class="n">adr_info</span><span class="o">.</span><span class="n">next_adr_loc</span>
+
+    <span class="k">return</span> <span class="n">return_dict</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="cdflib.cdfread.CDF.varattsget" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">varattsget</span>
+
+
+<a href="#cdflib.cdfread.CDF.varattsget" class="headerlink" title="Permanent link">¤</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">varattsget</span><span class="p">(</span><span class="n"><span title="cdflib.cdfread.CDF.varattsget(variable)">variable</span></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Union&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Dict&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Union&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><span title="numpy.ndarray">ndarray</span></span><span class="p">]]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Gets all variable attributes.</p>
+<p>Unlike attget, which returns a single attribute entry value,
+this function returns all of the variable attribute entries,
+in a dictionary (in the form of 'attribute': value pair) for
+a variable.</p>
+
+          
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>cdflib/cdfread.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">varattsget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets all variable attributes.</span>
+
+<span class="sd">    Unlike attget, which returns a single attribute entry value,</span>
+<span class="sd">    this function returns all of the variable attribute entries,</span>
+<span class="sd">    in a dictionary (in the form of &#39;attribute&#39;: value pair) for</span>
+<span class="sd">    a variable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_rvariable</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This CDF has both r and z variables. Use variable name&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_zvariable</span>
+        <span class="n">num_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span>
+        <span class="k">for</span> <span class="n">zVar</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_variables</span><span class="p">):</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">vdr_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_vdr_fast</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">variable</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">vdr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_vdr</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_varatts</span><span class="p">(</span><span class="n">vdr_info</span><span class="o">.</span><span class="n">variable_number</span><span class="p">,</span> <span class="n">zVar</span><span class="p">)</span>
+                <span class="n">position</span> <span class="o">=</span> <span class="n">vdr_next</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_rvariable</span>
+            <span class="n">num_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_rvariable</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No variable by this name: </span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">num_variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span>
+            <span class="n">zVar</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">num_variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_rvariable</span>
+            <span class="n">zVar</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">variable</span> <span class="o">&gt;=</span> <span class="n">num_variable</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No variable by this number: </span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_varatts</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">zVar</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="cdflib.cdfread.CDF.varget" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">varget</span>
+
+
+<a href="#cdflib.cdfread.CDF.varget" class="headerlink" title="Permanent link">¤</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">varget</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.varget(variable)">variable</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Optional&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n"><span title="cdflib.cdfread.CDF.varget(epoch)">epoch</span></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Optional&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n"><span title="cdflib.cdfread.CDF.varget(starttime)">starttime</span></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Optional&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="cdflib.epochs.epoch_types">epoch_types</span></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n"><span title="cdflib.cdfread.CDF.varget(endtime)">endtime</span></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Optional&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="cdflib.epochs.epoch_types">epoch_types</span></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.varget(startrec)">startrec</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" href="#cdflib.cdfread.CDF.varget(endrec)">endrec</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Optional&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Union&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><span title="numpy.ndarray">ndarray</span></span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Returns the variable data.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+<h4 id="cdflib.cdfread.CDF.varget(variable)" class="doc doc-heading doc-heading-parameter">                  <code>variable</code>
+<a href="#cdflib.cdfread.CDF.varget(variable)" class="headerlink" title="Permanent link">¤</a></h4>            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Optional&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Variable name to fetch.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+<h4 id="cdflib.cdfread.CDF.varget(startrec)" class="doc doc-heading doc-heading-parameter">                  <code>startrec</code>
+<a href="#cdflib.cdfread.CDF.varget(startrec)" class="headerlink" title="Permanent link">¤</a></h4>            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Index of the first record to get.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+<h4 id="cdflib.cdfread.CDF.varget(endrec)" class="doc doc-heading doc-heading-parameter">                  <code>endrec</code>
+<a href="#cdflib.cdfread.CDF.varget(endrec)" class="headerlink" title="Permanent link">¤</a></h4>            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Index of the last record to get. All records from <em>startrec</em> to
+<em>endrec</em> inclusive are fetched.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="note" open>
+  <summary>Notes</summary>
+  <p>Variable can be entered either
+a name or a variable number. By default, it returns a
+'numpy.ndarray' or 'list' class object, depending on the
+data type, with the variable data and its specification.</p>
+<p>By default, the full variable data is returned. To acquire
+only a portion of the data for a record-varying variable,
+either the time or record (0-based) range can be specified.
+'epoch' can be used to specify which time variable this
+variable depends on and is to be searched for the time range.
+For the ISTP-compliant CDFs, the time variable will come from
+the attribute 'DEPEND_0' from this variable. The function will
+automatically search for it thus no need to specify 'epoch'.
+If either the start or end time is not specified,
+the possible minimum or maximum value for the specific epoch
+data type is assumed. If either the start or end record is not
+specified, the range starts at 0 or/and ends at the last of the
+written data.</p>
+<p>The start (and end) time should be presented in a list as:
+[year month day hour minute second millisec] for CDF_EPOCH
+[year month day hour minute second millisec microsec nanosec picosec] for CDF_EPOCH16
+[year month day hour minute second millisec microsec nanosec] for CDF_TIME_TT2000
+If not enough time components are presented, only the last item can have the floating
+portion for the sub-time components.</p>
+<p>Note: CDF's CDF_EPOCH16 data type uses 2 8-byte doubles for each data value.
+In Python, each value is presented as a complex or numpy.complex128.</p>
+</details>
+          
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>cdflib/cdfread.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">varget</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">variable</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">epoch</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">starttime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">epoch</span><span class="o">.</span><span class="n">epoch_types</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">endtime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">epoch</span><span class="o">.</span><span class="n">epoch_types</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">startrec</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">endrec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the variable data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    variable: str</span>
+<span class="sd">        Variable name to fetch.</span>
+<span class="sd">    startrec: int</span>
+<span class="sd">        Index of the first record to get.</span>
+<span class="sd">    endrec : int</span>
+<span class="sd">        Index of the last record to get. All records from *startrec* to</span>
+<span class="sd">        *endrec* inclusive are fetched.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Variable can be entered either</span>
+<span class="sd">    a name or a variable number. By default, it returns a</span>
+<span class="sd">    &#39;numpy.ndarray&#39; or &#39;list&#39; class object, depending on the</span>
+<span class="sd">    data type, with the variable data and its specification.</span>
+
+<span class="sd">    By default, the full variable data is returned. To acquire</span>
+<span class="sd">    only a portion of the data for a record-varying variable,</span>
+<span class="sd">    either the time or record (0-based) range can be specified.</span>
+<span class="sd">    &#39;epoch&#39; can be used to specify which time variable this</span>
+<span class="sd">    variable depends on and is to be searched for the time range.</span>
+<span class="sd">    For the ISTP-compliant CDFs, the time variable will come from</span>
+<span class="sd">    the attribute &#39;DEPEND_0&#39; from this variable. The function will</span>
+<span class="sd">    automatically search for it thus no need to specify &#39;epoch&#39;.</span>
+<span class="sd">    If either the start or end time is not specified,</span>
+<span class="sd">    the possible minimum or maximum value for the specific epoch</span>
+<span class="sd">    data type is assumed. If either the start or end record is not</span>
+<span class="sd">    specified, the range starts at 0 or/and ends at the last of the</span>
+<span class="sd">    written data.</span>
+
+<span class="sd">    The start (and end) time should be presented in a list as:</span>
+<span class="sd">    [year month day hour minute second millisec] for CDF_EPOCH</span>
+<span class="sd">    [year month day hour minute second millisec microsec nanosec picosec] for CDF_EPOCH16</span>
+<span class="sd">    [year month day hour minute second millisec microsec nanosec] for CDF_TIME_TT2000</span>
+<span class="sd">    If not enough time components are presented, only the last item can have the floating</span>
+<span class="sd">    portion for the sub-time components.</span>
+
+<span class="sd">    Note: CDF&#39;s CDF_EPOCH16 data type uses 2 8-byte doubles for each data value.</span>
+<span class="sd">    In Python, each value is presented as a complex or numpy.complex128.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_zvariable</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_rvariable</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This CDF has both r and z variables. &quot;</span> <span class="s2">&quot;Use variable name instead&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">starttime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">endtime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">startrec</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">endrec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t specify both time and record range&quot;</span><span class="p">)</span>
+
+    <span class="n">vdr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vdr_info</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vdr_info</span><span class="o">.</span><span class="n">max_rec</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No records found for variable </span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_vardata</span><span class="p">(</span>
+        <span class="n">vdr_info</span><span class="p">,</span>
+        <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">,</span>
+        <span class="n">starttime</span><span class="o">=</span><span class="n">starttime</span><span class="p">,</span>
+        <span class="n">endtime</span><span class="o">=</span><span class="n">endtime</span><span class="p">,</span>
+        <span class="n">startrec</span><span class="o">=</span><span class="n">startrec</span><span class="p">,</span>
+        <span class="n">endrec</span><span class="o">=</span><span class="n">endrec</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="cdflib.cdfread.CDF.varinq" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">varinq</span>
+
+
+<a href="#cdflib.cdfread.CDF.varinq" class="headerlink" title="Permanent link">¤</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">varinq</span><span class="p">(</span><span class="n"><span title="cdflib.cdfread.CDF.varinq(variable)">variable</span></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" href="../dataclasses/#cdflib.dataclasses.VDRInfo">VDRInfo</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Get basic variable information.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" href="../dataclasses/#cdflib.dataclasses.VDRInfo">VDRInfo</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+          
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>cdflib/cdfread.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">varinq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VDRInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get basic variable information.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    VDRInfo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vdr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vdr_info</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">VDRInfo</span><span class="p">(</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">variable_number</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable_token</span><span class="p">(</span><span class="n">vdr_info</span><span class="o">.</span><span class="n">section_type</span><span class="p">),</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">data_type</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datatype_token</span><span class="p">(</span><span class="n">vdr_info</span><span class="o">.</span><span class="n">data_type</span><span class="p">),</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">num_elements</span><span class="p">,</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">num_dims</span><span class="p">,</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">dim_sizes</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_token</span><span class="p">(</span><span class="n">vdr_info</span><span class="o">.</span><span class="n">sparse</span><span class="p">),</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">max_rec</span><span class="p">,</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">record_vary</span><span class="p">,</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">dim_vary</span><span class="p">,</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">compression_level</span><span class="p">,</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">pad</span><span class="p">,</span>
+        <span class="n">vdr_info</span><span class="o">.</span><span class="n">blocking_factor</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="sample-usage">Sample Usage<a class="headerlink" href="#sample-usage" title="Permanent link">¤</a></h2>
+<p>To begin accessing the data within a CDF file, first create a new CDF class.
+This can be done with the following commands</p>
+<div class="language-python highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">cdflib</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cdf_file</span> <span class="o">=</span> <span class="n">cdflib</span><span class="o">.</span><span class="n">CDF</span><span class="p">(</span><span class="s1">&#39;/path/to/cdf_file.cdf&#39;</span><span class="p">)</span>
+</code></pre></div>
+<p>Then, you can call various functions on the variable.</p>
+<p>For example</p>
+<div class="language-python highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">cdf_file</span><span class="o">.</span><span class="n">varget</span><span class="p">(</span><span class="s2">&quot;NameOfVariable&quot;</span><span class="p">,</span> <span class="n">startrec</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">endrec</span> <span class="o">=</span> <span class="mi">150</span><span class="p">)</span>
+</code></pre></div>
+<p>This command will return all data inside of the variable <code>Variable1</code>, from records 0 to 150.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Home
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../cdfwrite/" class="md-footer__link md-footer__link--next" aria-label="Next: Writing CDFs">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Writing CDFs
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.tooltips", "navigation.footer", "navigation.instant.preview", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
