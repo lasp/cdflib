@@ -682,3 +682,46 @@ def test_array_string_input_but_number_type(tmp_path):
 
     # Reading it back in would cause an error
     cdf_to_xarray(tmp_path / "test.cdf")
+
+
+def test_write_empty_variable_no_compression(tmp_path):
+    # Writing a variable with zero-length data (no compression) should not raise.
+    fn = tmp_path / fnbasic
+    var_spec: Dict[str, Any] = {
+        "Variable": "EmptyVar",
+        "Data_Type": 8,  # CDF_INT8
+        "Num_Elements": 1,
+        "Rec_Vary": True,
+        "Dim_Sizes": [],
+        "Compress": 0,
+    }
+
+    tfile = cdf_create(fn, {})
+    tfile.write_var(var_spec, var_data=np.array([], dtype=np.int64))
+    tfile.close()
+
+    reader = cdf_read(fn)
+    info = reader.varinq("EmptyVar")
+    assert info.Last_Rec == -1
+
+
+def test_write_empty_variable_with_compression(tmp_path):
+    # Writing a variable with zero-length data and compression enabled used to
+    # raise a ZeroDivisionError inside _write_var_data_nonsparse.
+    fn = tmp_path / fnbasic
+    var_spec: Dict[str, Any] = {
+        "Variable": "EmptyVar",
+        "Data_Type": 8,  # CDF_INT8
+        "Num_Elements": 1,
+        "Rec_Vary": True,
+        "Dim_Sizes": [],
+        "Compress": 6,
+    }
+
+    tfile = cdf_create(fn, {"Compressed": 6})
+    tfile.write_var(var_spec, var_data=np.array([], dtype=np.int64))
+    tfile.close()
+
+    reader = cdf_read(fn)
+    info = reader.varinq("EmptyVar")
+    assert info.Last_Rec == -1

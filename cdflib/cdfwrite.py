@@ -1023,6 +1023,10 @@ class CDF:
         else:
             vdr_offset = self.rvarsinfo[var][1]
 
+        if recs == 0:
+            # Nothing to write; VDR's MaxRec is already initialised to -1.
+            return -1
+
         usedEntries = 0
         numVXRs = 0
         if compression > 0:
