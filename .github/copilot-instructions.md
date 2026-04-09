@@ -72,3 +72,6 @@ with CDF('new_file.cdf', cdf_spec=spec) as cdf:
     cdf.write_globalattrs(global_attrs)
     cdf.write_var(var_spec, var_attrs, var_data)
 ```
+
+### Rules
+NEVER RUN GIT COMMANDS IN THIS REPOSITORY. A human will review all code changes and merge them manually.
