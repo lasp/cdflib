@@ -347,6 +347,23 @@ def test_build_from_scratch():
     os.remove("hello.cdf")
 
 
+def test_depend_0_round_trip_stays_string(tmp_path):
+    pytest.importorskip("xarray")
+
+    epoch_data = np.array(["2001-01-01T00:00:00", "2001-01-01T00:00:01"], dtype="datetime64[ns]")
+    epoch = xr.Variable(["Epoch"], epoch_data)
+    data = xr.Variable(["Epoch"], [1.0, 2.0], {"DEPEND_0": "Epoch", "VAR_TYPE": "data"})
+    ds = xr.Dataset(data_vars={"data": data, "Epoch": epoch})
+
+    file_path = tmp_path / "hello_depend.cdf"
+
+    xarray_to_cdf(ds, file_path, istp=False)
+    out = cdf_to_xarray(file_path, to_datetime=True)
+
+    assert out["data"].attrs["DEPEND_0"] == "Epoch"
+    assert not isinstance(out["data"].attrs["DEPEND_0"], np.datetime64)
+
+
 def test_smoke(cdf_path, tmp_path):
     a = cdf_to_xarray(cdf_path, fillval_to_nan=True)
     xarray_to_cdf(a, tmp_path / cdf_path.name)

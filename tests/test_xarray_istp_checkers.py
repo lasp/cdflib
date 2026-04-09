@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from cdflib import CDF
 from cdflib.xarray import xarray_to_cdf
 from cdflib.xarray.xarray_to_cdf import ISTPError
 
@@ -134,3 +135,37 @@ def test_istp_support_data_has_depends_expected_failure():
 
     if os.path.exists("hello.cdf"):
         os.remove("hello.cdf")
+
+
+def test_non_istp_converts_null_variable_attributes(caplog, tmp_path):
+    pytest.importorskip("xarray")
+
+    data = xr.Variable(
+        ["epoch"],
+        [1, 2, 3],
+        {
+            "DEPEND_0": "epoch",
+            "NULL_NONE": None,
+            "NULL_EMPTY": "",
+            "NULL_LIST": [],
+            "NULL_DICT": {},
+            "KEPT": "ok",
+        },
+    )
+    epoch = xr.Variable(["epoch"], [1, 2, 3], {})
+    ds = xr.Dataset(data_vars={"data": data, "epoch": epoch})
+
+    file_path = tmp_path / "non_istp_drop_null_attrs.cdf"
+
+    with caplog.at_level("WARNING"):
+        xarray_to_cdf(ds, file_path, istp=False)
+
+    cdf_file = CDF(file_path)
+    atts = cdf_file.varattsget("data")
+
+    assert atts["NULL_NONE"] == ""
+    assert atts["NULL_EMPTY"] == ""
+    assert atts["NULL_LIST"] == ""
+    assert atts["NULL_DICT"] == ""
+    assert atts["KEPT"] == "ok"
+    assert atts["DEPEND_0"] == "epoch"

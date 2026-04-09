@@ -73,6 +73,7 @@ DATATYPE_FILLVALS = {
 
 # Regular expression to match valid ISTP variable/attribute names
 ISTP_COMPLIANT_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
+DEPEND_ATTRIBUTE = re.compile(r"^DEPEND_[0-9]+$")
 
 
 class ISTPError(Exception):
@@ -94,7 +95,21 @@ def _warn_or_except(message: str, exception: bool = False) -> None:
         logger.warning(message)
 
 
-def _is_datetime_array(data: Union[npt.ArrayLike, datetime]) -> bool:
+def _is_depend_attribute(attribute_name: str) -> bool:
+    return bool(DEPEND_ATTRIBUTE.match(attribute_name.upper()))
+
+
+def _validate_depend_attribute_value(attribute_name: str, value: Any, variable_name: str) -> None:
+    if not _is_depend_attribute(attribute_name):
+        return
+
+    if not isinstance(value, str) or len(value.strip()) == 0:
+        raise ValueError(
+            f"CDF DEPEND attribute validation error: {attribute_name} for variable {variable_name} must be a non-empty string."
+        )
+
+
+def _is_datetime_array(data: Any) -> bool:
     try:
         if isinstance(data, datetime):
             return True
@@ -102,12 +117,12 @@ def _is_datetime_array(data: Union[npt.ArrayLike, datetime]) -> bool:
             if data.ndim == 0:
                 return isinstance(data.item(), datetime)
             else:
-                return all(isinstance(x, datetime) for x in data)
+                return bool(data and all(isinstance(x, datetime) for x in data))
         elif hasattr(data, "__iter__"):
-            return all(isinstance(x, datetime) for x in data)
+            return bool(data and all(isinstance(x, datetime) for x in data))
         else:
             iterable_data = np.atleast_1d(data)
-            return all(isinstance(x, datetime) for x in iterable_data)
+            return bool(data and all(isinstance(x, datetime) for x in iterable_data))
     except:
         return False
 
@@ -1149,19 +1164,21 @@ def xarray_to_cdf(
 
             # Grab the attributes from xarray, and attempt to convert VALIDMIN and VALIDMAX to the same data type as the variable
             var_att_dict = {}
-            for att in d[var].attrs:
-                var_att_dict[att] = d[var].attrs[att]
-                if _is_datetime_array(d[var].attrs[att]) or _is_datetime64_array(d[var].attrs[att]):
+            for att, att_value in d[var].attrs.items():
+                if istp:  # TODO: We could probably perform this check elsewhere, but this is a decent place for now.
+                    _validate_depend_attribute_value(att, att_value, var)
+                var_att_dict[att] = att_value
+                if _is_datetime_array(att_value) or _is_datetime64_array(att_value):
                     att_data = _datetime_to_cdf_time(d[var], cdf_epoch=cdf_epoch, cdf_epoch16=cdf_epoch16, attribute_name=att)
                     var_att_dict[att] = [att_data, DATATYPES_TO_STRINGS[cdf_data_type]]
                 elif unix_time_to_cdf_time:
                     if "TIME_ATTRS" in d[var].attrs:
                         if att in d[var].attrs["TIME_ATTRS"]:
                             if DATATYPES_TO_STRINGS[cdf_data_type] in ("CDF_EPOCH", "CDF_EPOCH16", "CDF_TIME_TT2000"):
-                                att_data = _unixtime_to_cdf_time(d[var].attrs[att], cdf_epoch=cdf_epoch, cdf_epoch16=cdf_epoch16)
+                                att_data = _unixtime_to_cdf_time(att_value, cdf_epoch=cdf_epoch, cdf_epoch16=cdf_epoch16)
                                 var_att_dict[att] = [att_data, DATATYPES_TO_STRINGS[cdf_data_type]]
                 elif (att == "VALIDMIN" or att == "VALIDMAX" or att == "FILLVAL") and istp:
-                    var_att_dict[att] = [d[var].attrs[att], DATATYPES_TO_STRINGS[cdf_data_type]]
+                    var_att_dict[att] = [att_value, DATATYPES_TO_STRINGS[cdf_data_type]]
 
             var_spec = {
                 "Variable": var,

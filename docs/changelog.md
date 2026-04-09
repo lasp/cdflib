@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.3.9
+=====
+
+cdfwrite
+--------
+- Updated to allow writing of variable attributes that are empty - they will be given the type of CDF_CHAR and a value of null string
+
 1.3.6
 =====
 cdf_to_xarray

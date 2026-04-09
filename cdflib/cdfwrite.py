@@ -857,85 +857,94 @@ class CDF:
                 offset = self.attrsinfo[attrNum][2]
 
             if entry is None:
+                # Empty data, whatever it is, should be treated as a null string.
+                data: Any = ""
+                dataType = self.CDF_CHAR
+                numElems = 0
                 logger.warning(
-                    f"Attribute: {attr}" + " is None type, which does not have an equivalent in CDF... Skipping attribute."
+                    f"Attribute: {attr}"
+                    + " is None type, which does not have an equivalent in CDF... Attribute is being converted to null string and written to the file. If this is not the intended behavior, please change the attribute value to an empty string or a string with a single space and try again."
                 )
-                continue
+            else:
+                # Check if dataType was provided
+                dataType = 0
+                if hasattr(entry, "__len__") and not isinstance(entry, str):
+                    items = len(entry)
+                    if items == 2:
+                        dataType = self._datatype_token(entry[1])
 
-            # Check if dataType was provided
-            dataType = 0
-            if hasattr(entry, "__len__") and not isinstance(entry, str):
-                items = len(entry)
-                if items == 2:
-                    dataType = self._datatype_token(entry[1])
-
-            # Handle user setting datatype
-            if dataType > 0:
-                # CDF data type defined in entry
-                data = entry[0]
-                if self._checklistofNums(data):
-                    # Data needs no pre-processing and is good to go
-                    if hasattr(data, "__len__") and not isinstance(data, str):
-                        numElems = len(data)
-                    else:
-                        numElems = 1
-                else:
-                    # Data needs some sort of pre-processing to proceed
-                    if dataType == self.CDF_CHAR or dataType == self.CDF_UCHAR:
-                        if hasattr(data, "__len__") and not isinstance(data, str):
-                            # Reformat strings
-                            items = len(data)
-                            odata = data
-                            data = ""
-                            for x in range(0, items):
-                                if x > 0:
-                                    data += "\\N "
-                                    data += str(odata[x])
-                                else:
-                                    data = str(odata[x])
-                        numElems = len(data)
-                    elif dataType == self.CDF_EPOCH or dataType == self.CDF_EPOCH16 or dataType == self.CDF_TIME_TT2000:
-                        # Convert data to CDF time
-                        cvalue = []
+                # Handle user setting datatype
+                if dataType > 0:
+                    # CDF data type defined in entry
+                    data = entry[0]
+                    if self._checklistofNums(data):
+                        # Data needs no pre-processing and is good to go
                         if hasattr(data, "__len__") and not isinstance(data, str):
                             numElems = len(data)
-                            for x in range(0, numElems):
-                                cvalue.append(cdfepoch.CDFepoch.parse(data[x]))
-                            data = cvalue
                         else:
-                            data = cdfepoch.CDFepoch.parse(data)
                             numElems = 1
-                    elif isinstance(data, str):
-                        # One possibility is that the user wants to convert a string to a number
-                        numElems = 1
-                        data = np.array(float(data))
                     else:
-                        # The final possibility I can think of is that the user wants to convert a list of strings to a list of numbers
-                        try:
-                            numElems = 1
-                            data = np.array([float(item) for item in data])
-                        except:
-                            logger.warning(
-                                f"Cannot determine how to convert {str(data)} to specified type of {dataType}. Ignoring the specified datatype, and continuing."
-                            )
-                        dataType = 0
-
-            if dataType == 0:
-                # No data type defined...
-                data = entry
-                if hasattr(data, "__len__") and not isinstance(data, str):
-                    numElems, dataType = self._datatype_define(entry[0])
-                    if dataType == self.CDF_CHAR or dataType == self.CDF_UCHAR:
-                        data = ""
-                        for x in range(0, len(entry)):
-                            if x > 0:
-                                data += "\\N "
-                                data += str(entry[x])
+                        # Data needs some sort of pre-processing to proceed
+                        if dataType == self.CDF_CHAR or dataType == self.CDF_UCHAR:
+                            if hasattr(data, "__len__") and not isinstance(data, str):
+                                # Reformat strings
+                                items = len(data)
+                                odata = data
+                                data = ""
+                                for x in range(0, items):
+                                    if x > 0:
+                                        data += "\\N "
+                                        data += str(odata[x])
+                                    else:
+                                        data = str(odata[x])
+                            numElems = len(data)
+                        elif dataType == self.CDF_EPOCH or dataType == self.CDF_EPOCH16 or dataType == self.CDF_TIME_TT2000:
+                            # Convert data to CDF time
+                            cvalue = []
+                            if hasattr(data, "__len__") and not isinstance(data, str):
+                                numElems = len(data)
+                                for x in range(0, numElems):
+                                    cvalue.append(cdfepoch.CDFepoch.parse(data[x]))
+                                data = cvalue
                             else:
-                                data = str(entry[x])
-                    numElems = len(data)
-                else:
-                    numElems, dataType = self._datatype_define(entry)
+                                data = cdfepoch.CDFepoch.parse(data)
+                                numElems = 1
+                        elif isinstance(data, str):
+                            # One possibility is that the user wants to convert a string to a number
+                            numElems = 1
+                            data = np.array(float(data))
+                        else:
+                            # The final possibility I can think of is that the user wants to convert a list of strings to a list of numbers
+                            try:
+                                numElems = 1
+                                data = np.array([float(item) for item in data])
+                            except:
+                                logger.warning(
+                                    f"Cannot determine how to convert {str(data)} to specified type of {dataType}. Ignoring the specified datatype, and continuing."
+                                )
+                            dataType = 0
+
+                if dataType == 0:
+                    # No data type defined...
+                    data = entry
+                    if hasattr(data, "__len__") and len(data) == 0:
+                        # Empty data, whatever it is, should be treated as a null string.
+                        data = ""
+                        dataType = self.CDF_CHAR
+                        numElems = 0
+                    elif hasattr(data, "__len__") and not isinstance(data, str):
+                        numElems, dataType = self._datatype_define(entry[0])
+                        if dataType == self.CDF_CHAR or dataType == self.CDF_UCHAR:
+                            data = ""
+                            for x in range(0, len(entry)):
+                                if x > 0:
+                                    data += "\\N "
+                                    data += str(entry[x])
+                                else:
+                                    data = str(entry[x])
+                        numElems = len(data)
+                    else:
+                        numElems, dataType = self._datatype_define(entry)
 
             offset = self._write_aedr(f, False, attrNum, varNum, data, dataType, numElems, zVar)
 
@@ -1683,7 +1692,7 @@ class CDF:
         gORz: bool,
         attrNum: int,
         entryNum: int,
-        value: Union[Number, np.ndarray],
+        value: Union[str, Number, np.ndarray],
         pdataType: int,
         pnumElems: int,
         zVar: bool,
