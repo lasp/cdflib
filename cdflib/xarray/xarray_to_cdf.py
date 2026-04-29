@@ -1,7 +1,7 @@
 import os
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -141,6 +141,13 @@ def _is_istp_epoch_variable(var_name: str) -> Union[re.Match, None]:
     epoch_regex_1 = re.compile("epoch$")
     epoch_regex_2 = re.compile("epoch_[0-9]+$")
     return epoch_regex_1.match(var_name.lower()) or epoch_regex_2.match(var_name.lower())
+
+
+def _variable_compression(var_name: str, compression: int, compression_skip_vars: List[str]) -> int:
+    if _is_istp_epoch_variable(var_name) or var_name in compression_skip_vars:
+        return 0
+
+    return compression
 
 
 def _dtype_to_cdf_type(var: xr.DataArray, terminate_on_warning: bool = False) -> Tuple[int, int]:
@@ -901,6 +908,7 @@ def xarray_to_cdf(
     auto_fix_depends: bool = True,
     record_dimensions: List[str] = ["record0"],
     compression: int = 0,
+    compression_skip_vars: Optional[List[str]] = None,
     nan_to_fillval: bool = True,
 ) -> None:
     """
@@ -924,6 +932,9 @@ def xarray_to_cdf(
         If the code cannot determine which dimensions should be made into CDF records, you may provide a list of them here
     compression : int, optional
         The level of compression to gzip the data in the variables.  Default is no compression, standard is 6.
+    compression_skip_vars : list of str, optional
+        Additional variables to write without compression when compression is enabled. ISTP epoch variables named
+        "epoch" or "epoch_N" are always written without compression.
     nan_to_fillval : bool, optional
         Convert all np.nan and np.datetime64('NaT') to the standard CDF FILLVALs.
 
@@ -1070,6 +1081,8 @@ def xarray_to_cdf(
         _warn_or_except(f"{file_name} already exists, cannot create CDF file.  Returning...", terminate_on_warning)
         return
 
+    compression_skip_vars = compression_skip_vars or []
+
     # Make a deep copy of the data before continuing
     dataset = xarray_dataset.copy()
 
@@ -1186,7 +1199,7 @@ def xarray_to_cdf(
                 "Num_Elements": cdf_num_elements,
                 "Rec_Vary": record_vary,
                 "Dim_Sizes": dim_sizes,
-                "Compress": compression,
+                "Compress": _variable_compression(var, compression, compression_skip_vars),
             }
 
             x.write_var(var_spec, var_attrs=var_att_dict, var_data=var_data)
