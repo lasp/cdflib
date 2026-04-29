@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from cdflib import CDF
 from cdflib.xarray import cdf_to_xarray, xarray_to_cdf
 
 # To run these tests use `pytest --remote-data`
@@ -362,6 +363,42 @@ def test_depend_0_round_trip_stays_string(tmp_path):
 
     assert out["data"].attrs["DEPEND_0"] == "Epoch"
     assert not isinstance(out["data"].attrs["DEPEND_0"], np.datetime64)
+
+
+def test_xarray_to_cdf_skips_epoch_compression_by_default(tmp_path):
+    pytest.importorskip("xarray")
+
+    epoch_data = np.array(["2001-01-01T00:00:00", "2001-01-01T00:00:01"], dtype="datetime64[ns]")
+    epoch = xr.Variable(["epoch"], epoch_data)
+    epoch_1 = xr.Variable(["epoch"], epoch_data)
+    data = xr.Variable(["epoch"], [1.0, 2.0], {"DEPEND_0": "epoch", "VAR_TYPE": "data"})
+    ds = xr.Dataset(data_vars={"data": data, "epoch": epoch, "epoch_1": epoch_1})
+
+    file_path = tmp_path / "epoch_compression.cdf"
+
+    xarray_to_cdf(ds, file_path, istp=False, compression=6)
+
+    with CDF(file_path) as cdf:
+        assert cdf.varinq("epoch").Compress == 0
+        assert cdf.varinq("epoch_1").Compress == 0
+        assert cdf.varinq("data").Compress == 6
+
+
+def test_xarray_to_cdf_compression_skip_vars(tmp_path):
+    pytest.importorskip("xarray")
+
+    epoch_data = np.array(["2001-01-01T00:00:00", "2001-01-01T00:00:01"], dtype="datetime64[ns]")
+    epoch = xr.Variable(["epoch"], epoch_data)
+    data = xr.Variable(["epoch"], [1.0, 2.0], {"DEPEND_0": "epoch", "VAR_TYPE": "data"})
+    ds = xr.Dataset(data_vars={"data": data, "epoch": epoch})
+
+    file_path = tmp_path / "compression_skip_vars.cdf"
+
+    xarray_to_cdf(ds, file_path, istp=False, compression=6, compression_skip_vars=["data"])
+
+    with CDF(file_path) as cdf:
+        assert cdf.varinq("epoch").Compress == 0
+        assert cdf.varinq("data").Compress == 0
 
 
 def test_smoke(cdf_path, tmp_path):
