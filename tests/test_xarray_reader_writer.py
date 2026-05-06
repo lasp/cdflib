@@ -401,6 +401,58 @@ def test_xarray_to_cdf_compression_skip_vars(tmp_path):
         assert cdf.varinq("data").Compress == 0
 
 
+def test_xarray_to_cdf_writes_istp_bin_location_as_real4(tmp_path):
+    pytest.importorskip("xarray")
+
+    epoch_data = np.array(["2001-01-01T00:00:00", "2001-01-01T00:00:01"], dtype="datetime64[ns]")
+    epoch = xr.Variable(["epoch"], epoch_data, {"BIN_LOCATION": 0})
+    data = xr.Variable(
+        ["epoch"],
+        [1.0, 2.0],
+        {
+            "DEPEND_0": "epoch",
+            "VAR_TYPE": "data",
+            "BIN_LOCATION": 0.5,
+            "VALIDMIN": 0.0,
+            "VALIDMAX": 10.0,
+            "FILLVAL": -1e31,
+        },
+    )
+    ds = xr.Dataset(data_vars={"data": data, "epoch": epoch})
+
+    file_path = tmp_path / "bin_location_real4.cdf"
+
+    xarray_to_cdf(ds, file_path, istp=True)
+
+    with CDF(file_path) as cdf:
+        epoch_bin_location = cdf.attget("BIN_LOCATION", "epoch")
+        data_bin_location = cdf.attget("BIN_LOCATION", "data")
+
+        assert epoch_bin_location.Data_Type == "CDF_REAL4"
+        assert epoch_bin_location.Data == np.float32(0)
+        assert data_bin_location.Data_Type == "CDF_REAL4"
+        assert data_bin_location.Data == np.float32(0.5)
+
+
+def test_xarray_to_cdf_preserves_non_istp_bin_location_type_inference(tmp_path):
+    pytest.importorskip("xarray")
+
+    epoch_data = np.array(["2001-01-01T00:00:00", "2001-01-01T00:00:01"], dtype="datetime64[ns]")
+    epoch = xr.Variable(["epoch"], epoch_data)
+    data = xr.Variable(["epoch"], [1.0, 2.0], {"BIN_LOCATION": 0})
+    ds = xr.Dataset(data_vars={"data": data, "epoch": epoch})
+
+    file_path = tmp_path / "bin_location_non_istp.cdf"
+
+    xarray_to_cdf(ds, file_path, istp=False)
+
+    with CDF(file_path) as cdf:
+        bin_location = cdf.attget("BIN_LOCATION", "data")
+
+        assert bin_location.Data_Type == "CDF_INT8"
+        assert bin_location.Data == np.int64(0)
+
+
 def test_smoke(cdf_path, tmp_path):
     a = cdf_to_xarray(cdf_path, fillval_to_nan=True)
     xarray_to_cdf(a, tmp_path / cdf_path.name)
