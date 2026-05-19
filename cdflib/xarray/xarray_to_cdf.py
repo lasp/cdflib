@@ -143,8 +143,42 @@ def _is_istp_epoch_variable(var_name: str) -> Union[re.Match, None]:
     return epoch_regex_1.match(var_name.lower()) or epoch_regex_2.match(var_name.lower())
 
 
-def _variable_compression(var_name: str, compression: int, compression_skip_vars: List[str]) -> int:
-    if _is_istp_epoch_variable(var_name) or var_name in compression_skip_vars:
+def _is_spdf_epoch_like_variable(
+    var_name: str,
+    cdf_data_type: int,
+    dims: Tuple[str, ...],
+    dim_sizes: List[int],
+    record_vary: bool,
+) -> bool:
+    # Mirror the SPDF Java checker Epoch.isEpoch() logic as closely as we can at the
+    # xarray layer. True ISTP epoch variables are time-typed, scalar in CDF terms,
+    # record-varying, and not named range_epoch. Before ISTP dimension inference runs,
+    # xarray time coordinates still appear as 1D variables over their own dimension,
+    # so treat that representation as epoch-like for compression decisions too.
+    is_time_type = cdf_data_type in (
+        STRINGS_TO_DATATYPES["CDF_EPOCH"],
+        STRINGS_TO_DATATYPES["CDF_EPOCH16"],
+        STRINGS_TO_DATATYPES["CDF_TIME_TT2000"],
+    )
+    is_epoch_coordinate = len(dims) == 1 and dims[0] == var_name
+
+    return (
+        is_time_type
+        and var_name.lower() != "range_epoch"
+        and (_is_istp_epoch_variable(var_name) or ((not dim_sizes and record_vary) or is_epoch_coordinate))
+    )
+
+
+def _variable_compression(
+    var_name: str,
+    cdf_data_type: int,
+    dims: Tuple[str, ...],
+    dim_sizes: List[int],
+    record_vary: bool,
+    compression: int,
+    compression_skip_vars: List[str],
+) -> int:
+    if _is_spdf_epoch_like_variable(var_name, cdf_data_type, dims, dim_sizes, record_vary) or var_name in compression_skip_vars:
         return 0
 
     return compression
@@ -933,8 +967,9 @@ def xarray_to_cdf(
     compression : int, optional
         The level of compression to gzip the data in the variables.  Default is no compression, standard is 6.
     compression_skip_vars : list of str, optional
-        Additional variables to write without compression when compression is enabled. ISTP epoch variables named
-        "epoch" or "epoch_N" are always written without compression.
+        Additional variables to write without compression when compression is enabled. Variables that match the
+        SPDF ISTP epoch predicate are always written without compression. This includes scalar, record-varying
+        CDF_EPOCH, CDF_EPOCH16, and CDF_TIME_TT2000 variables, except for ``range_epoch``.
     nan_to_fillval : bool, optional
         Convert all np.nan and np.datetime64('NaT') to the standard CDF FILLVALs.
 
@@ -1203,7 +1238,15 @@ def xarray_to_cdf(
                 "Num_Elements": cdf_num_elements,
                 "Rec_Vary": record_vary,
                 "Dim_Sizes": dim_sizes,
-                "Compress": _variable_compression(var, compression, compression_skip_vars),
+                "Compress": _variable_compression(
+                    var,
+                    cdf_data_type,
+                    d[var].dims,
+                    dim_sizes,
+                    record_vary,
+                    compression,
+                    compression_skip_vars,
+                ),
             }
 
             x.write_var(var_spec, var_attrs=var_att_dict, var_data=var_data)
