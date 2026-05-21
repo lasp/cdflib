@@ -384,6 +384,44 @@ def test_xarray_to_cdf_skips_epoch_compression_by_default(tmp_path):
         assert cdf.varinq("data").Compress == 6
 
 
+def test_xarray_to_cdf_skips_spdf_epoch_like_time_variable_compression(tmp_path):
+    pytest.importorskip("xarray")
+
+    time_data = np.array(["2001-01-01T00:00:00", "2001-01-01T00:00:01"], dtype="datetime64[ns]")
+    on_off_times = xr.Variable(["on_off_times"], time_data, {"CDF_DATA_TYPE": "CDF_TIME_TT2000"})
+    on_off_events = xr.Variable(
+        ["on_off_times"],
+        [0, 1],
+        {"DEPEND_0": "on_off_times", "VAR_TYPE": "support_data"},
+    )
+    ds = xr.Dataset(data_vars={"on_off_events": on_off_events, "on_off_times": on_off_times})
+
+    file_path = tmp_path / "epoch_like_compression.cdf"
+
+    xarray_to_cdf(ds, file_path, istp=False, compression=6)
+
+    with CDF(file_path) as cdf:
+        assert cdf.varinq("on_off_times").Compress == 0
+        assert cdf.varinq("on_off_events").Compress == 6
+
+
+def test_xarray_to_cdf_keeps_range_epoch_compression_enabled(tmp_path):
+    pytest.importorskip("xarray")
+
+    time_data = np.array(["2001-01-01T00:00:00", "2001-01-01T00:00:01"], dtype="datetime64[ns]")
+    range_epoch = xr.Variable(["range_epoch"], time_data, {"CDF_DATA_TYPE": "CDF_EPOCH"})
+    data = xr.Variable(["range_epoch"], [1.0, 2.0], {"DEPEND_0": "range_epoch", "VAR_TYPE": "data"})
+    ds = xr.Dataset(data_vars={"data": data, "range_epoch": range_epoch})
+
+    file_path = tmp_path / "range_epoch_compression.cdf"
+
+    xarray_to_cdf(ds, file_path, istp=False, compression=6)
+
+    with CDF(file_path) as cdf:
+        assert cdf.varinq("range_epoch").Compress == 6
+        assert cdf.varinq("data").Compress == 6
+
+
 def test_xarray_to_cdf_compression_skip_vars(tmp_path):
     pytest.importorskip("xarray")
 
