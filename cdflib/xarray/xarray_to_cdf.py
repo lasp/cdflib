@@ -99,13 +99,14 @@ def _is_depend_attribute(attribute_name: str) -> bool:
     return bool(DEPEND_ATTRIBUTE.match(attribute_name.upper()))
 
 
-def _validate_depend_attribute_value(attribute_name: str, value: Any, variable_name: str) -> None:
+def _validate_depend_attribute_value(attribute_name: str, value: Any, variable_name: str, terminate_on_warning: bool) -> None:
     if not _is_depend_attribute(attribute_name):
         return
 
     if not isinstance(value, str) or len(value.strip()) == 0:
-        raise ValueError(
-            f"CDF DEPEND attribute validation error: {attribute_name} for variable {variable_name} must be a non-empty string."
+        _warn_or_except(
+            f"CDF DEPEND attribute validation error: {attribute_name} for variable {variable_name} must be a non-empty string.",
+            terminate_on_warning,
         )
 
 
@@ -1214,7 +1215,7 @@ def xarray_to_cdf(
             var_att_dict = {}
             for att, att_value in d[var].attrs.items():
                 if istp:  # TODO: We could probably perform this check elsewhere, but this is a decent place for now.
-                    _validate_depend_attribute_value(att, att_value, var)
+                    _validate_depend_attribute_value(att, att_value, var, terminate_on_warning)
                 var_att_dict[att] = att_value
                 if _is_datetime_array(att_value) or _is_datetime64_array(att_value):
                     att_data = _datetime_to_cdf_time(d[var], cdf_epoch=cdf_epoch, cdf_epoch16=cdf_epoch16, attribute_name=att)
