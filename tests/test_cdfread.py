@@ -28,3 +28,13 @@ def test_read(cdf_path):
 def test_nonexist_file_errors(tmp_path):
     with pytest.raises(FileNotFoundError, match="not found"):
         CDF(tmp_path / "nonexist.cdf")
+
+
+def test_nonexist_path_with_extra_suffix_errors(cdf_path):
+    # A non-existent path built from a real CDF path plus extra characters
+    # must raise instead of silently reading the real file. Previously the
+    # ``.cdf`` fallback used ``Path.with_suffix`` which replaces the suffix,
+    # so ``<real>.cdfINVALID`` resolved back to ``<real>.cdf`` (GH #328).
+    bad_path = str(cdf_path) + "INVALID"
+    with pytest.raises(FileNotFoundError, match="not found"):
+        CDF(bad_path)

@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.3.13
+======
+
+cdfread
+-------
+- Reading a non-existent path built from a valid path plus extra characters (e.g. ``file.cdfINVALID``) now raises ``FileNotFoundError`` instead of silently falling back to ``file.cdf`` and reading a different file (#328)
+
 1.3.9
 =====
 
