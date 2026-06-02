@@ -2,6 +2,7 @@
 import filecmp
 import os
 import urllib.request
+import warnings
 from datetime import datetime, timedelta
 from pathlib import Path
 from random import randint
@@ -228,6 +229,18 @@ def test_parse_cdftt2000():
     assert parsed == input_time
 
     assert cdfepoch().to_datetime(parsed).astype("datetime64[us]").item() == datetime(2004, 3, 1, 12, 24, 22, 351793)
+
+
+def test_to_datetime_no_generic_timedelta_warning():
+    # Regression test for #333: composing the result must not rely on a
+    # generic-unit timedelta (adding a bare integer to a datetime64), which
+    # NumPy >= 2.5 deprecates and will eventually turn into an error.
+    with warnings.catch_warnings(record=True) as records:
+        warnings.simplefilter("always")
+        result = cdfepoch.to_datetime(631377279184000000)
+    generic = [r for r in records if issubclass(r.category, DeprecationWarning) and "generic" in str(r.message)]
+    assert not generic
+    assert result.astype("datetime64[us]").item() == datetime(2020, 1, 4, 2, 33, 30)
 
 
 def test_findepochrange_cdfepoch():

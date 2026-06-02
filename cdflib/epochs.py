@@ -177,8 +177,16 @@ class CDFepoch:
         vals = (v for v in (years, months, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds) if v is not None)
 
         arrays: List[npt.NDArray[np.datetime64]] = [np.array(v, dtype=t) for t, v in zip(types, vals)]
-        total_datetime = np.array(sum(arrays))
-        total_datetime = np.where(nat_positions, np.datetime64("NaT"), total_datetime)
+        # Sum the components starting from the first array (a datetime64)
+        # rather than the implicit integer ``0`` used by ``sum``: adding a
+        # bare integer to a datetime64 yields a generic-unit timedelta, which
+        # NumPy deprecates and will eventually turn into an error (#333).
+        total_datetime = np.array(sum(arrays[1:], arrays[0]))
+        # Build the NaT with the same unit as the data; the bare
+        # ``np.datetime64("NaT")`` is generic-unit and triggers the same
+        # deprecation when combined with ``total_datetime`` in ``np.where``.
+        nat = np.datetime64("NaT", np.datetime_data(total_datetime.dtype)[0])
+        total_datetime = np.where(nat_positions, nat, total_datetime)
         return total_datetime
 
     @classmethod
