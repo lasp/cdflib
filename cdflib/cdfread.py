@@ -88,11 +88,17 @@ class CDF:
             self.ftype = "file"
             path = Path(path).resolve().expanduser()
             if not path.is_file():
-                path = path.with_suffix(".cdf")
+                # Fall back to appending a ``.cdf`` extension only when the
+                # path has no suffix (e.g. the user passed ``mydata`` instead
+                # of ``mydata.cdf``). ``Path.with_suffix`` *replaces* the last
+                # suffix, so for a non-existent path that already has one,
+                # e.g. ``mydata.cdfINVALID``, it used to silently resolve to
+                # ``mydata.cdf`` and read the wrong file (GH #328).
+                if not path.suffix:
+                    path = path.with_suffix(".cdf")
                 if not path.is_file():
                     raise FileNotFoundError(f"{path} not found")
             self.file = path  # path for files, fname for urls and S3
-            self.file = path
 
         self.string_encoding = string_encoding
 
