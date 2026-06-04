@@ -725,3 +725,53 @@ def test_write_empty_variable_with_compression(tmp_path):
     reader = cdf_read(fn)
     info = reader.varinq("EmptyVar")
     assert info.Last_Rec == -1
+
+
+def test_globalattrs_skip_none_entry(tmp_path):
+    # A global attribute with an untypeable (e.g. None) value must not abort
+    # writing the attributes that follow it (GH #319).
+    fn = tmp_path / fnbasic
+
+    globalAttrs: Dict[str, Any] = {}
+    globalAttrs["Before"] = {0: "value before"}
+    globalAttrs["NoneAttr"] = {0: None}
+    globalAttrs["After"] = {0: "value after"}
+
+    tfile = cdf_create(fn, {"Checksum": True})
+    tfile.write_globalattrs(globalAttrs)
+    tfile.close()
+
+    attrs = cdf_read(fn).globalattsget()
+    # The attribute after the offending one is still written ...
+    assert attrs["Before"] == ["value before"]
+    assert attrs["After"] == ["value after"]
+    # ... and the offending entry is simply skipped.
+    assert attrs.get("NoneAttr", []) == []
+
+
+def test_variableattrs_skip_none_entry(tmp_path):
+    # Same guarantee for variable attributes: an untypeable value must not drop
+    # the variable attributes that follow it (GH #319).
+    fn = tmp_path / fnbasic
+
+    vs: Dict[str, Any] = {}
+    vs["Variable"] = "Variable1"
+    vs["Data_Type"] = 8
+    vs["Num_Elements"] = 1
+    vs["Rec_Vary"] = True
+    vs["Dim_Sizes"] = []
+
+    tfile = cdf_create(fn, {"Checksum": True})
+    tfile.write_var(vs, var_data=np.array([0, 1, 2]))
+    tfile.write_variableattrs(
+        {
+            "AttrBefore": {"Variable1": "before"},
+            "NoneAttr": {"Variable1": None},
+            "AttrAfter": {"Variable1": "after"},
+        }
+    )
+    tfile.close()
+
+    attrs = cdf_read(fn).varattsget("Variable1")
+    assert attrs["AttrBefore"] == "before"
+    assert attrs["AttrAfter"] == "after"

@@ -393,8 +393,8 @@ class CDF:
                                 data = value[0]
                                 if dataType == self.CDF_CHAR or dataType == self.CDF_UCHAR:
                                     if isinstance(data, list) or isinstance(data, tuple):
-                                        logger.warning("Invalid global attribute value")
-                                        return
+                                        logger.warning(f"Invalid global attribute value for {attr}, skipping entry")
+                                        continue
                                     numElems = len(data)
                                 elif dataType == self.CDF_EPOCH or dataType == self.CDF_EPOCH16 or dataType == self.CDF_TIME_TT2000:
                                     cvalue = []
@@ -430,8 +430,8 @@ class CDF:
                         data = value
                         numElems, dataType = self._datatype_define(value)
                         if numElems is None:
-                            logger.warning("Unknown data")
-                            return
+                            logger.warning(f"Unknown data type for {attr}, skipping entry")
+                            continue
 
                     offset = self._write_aedr(f, True, attrNum, entryNum, data, dataType, numElems, None)
                     if entries == 0:
@@ -583,8 +583,8 @@ class CDF:
                         data = value
                         numElems, dataType = self._datatype_define(value)
                         if numElems is None:
-                            logger.warning("Unknown data")
-                            return
+                            logger.warning(f"Unknown data type for {attr}, skipping entry")
+                            continue
                     offset = self._write_aedr(f, False, attrNum, entryNum, data, dataType, numElems, zVar)
                     if entries == 0:
                         if zVar:
