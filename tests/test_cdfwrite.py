@@ -725,3 +725,43 @@ def test_write_empty_variable_with_compression(tmp_path):
     reader = cdf_read(fn)
     info = reader.varinq("EmptyVar")
     assert info.Last_Rec == -1
+
+
+def _write_named_vars(fn, named_data):
+    tfile = cdf_create(fn, {})
+    for name, data in named_data:
+        var_spec = {
+            "Variable": name,
+            "Data_Type": 4,
+            "Num_Elements": 1,
+            "Rec_Vary": True,
+            "Dim_Sizes": [],
+        }
+        tfile.write_var(var_spec, var_data=np.array(data))
+    tfile.close()
+
+
+def test_varget_is_case_sensitive(tmp_path):
+    # CDF variable names are case-sensitive (gh #314): two variables differing
+    # only in case must each return their own data, not the first one matched.
+    fn = tmp_path / fnbasic
+    _write_named_vars(fn, [("Epoch", [10, 11, 12]), ("epoch", [20, 21, 22])])
+
+    reader = cdf_read(fn)
+    np.testing.assert_equal(reader.varget("Epoch"), [10, 11, 12])
+    np.testing.assert_equal(reader.varget("epoch"), [20, 21, 22])
+    # varattsget must resolve to the same exact-case variable
+    assert reader.varattsget("epoch") is not None
+
+
+def test_varget_case_insensitive_fallback(tmp_path):
+    # With no exact-case match, a case-insensitive lookup still resolves, so
+    # existing callers that pass the wrong case keep working.
+    fn = tmp_path / fnbasic
+    _write_named_vars(fn, [("SpinPeriod", [7, 8, 9])])
+
+    reader = cdf_read(fn)
+    np.testing.assert_equal(reader.varget("spinperiod"), [7, 8, 9])
+    np.testing.assert_equal(reader.varget("SPINPERIOD"), [7, 8, 9])
+    with pytest.raises(ValueError):
+        reader.varget("NoSuchVariable")

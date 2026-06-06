@@ -446,26 +446,42 @@ class CDF:
             endrec=endrec,
         )
 
+    def _find_variable_position(self, variable: str) -> Tuple[int, bool]:
+        """Locate a variable's VDR by name, checking z variables then r variables.
+
+        CDF variable names are case-sensitive (see the CDF manual), so an exact
+        match is preferred. A case-insensitive match is kept only as a fallback,
+        used when no exact match exists, to preserve backward-compatible lookups.
+
+        Returns ``(position, is_zvariable)``; raises ``ValueError`` if not found.
+        """
+        target = variable.strip()
+        target_lower = target.lower()
+        fallback: Optional[Tuple[int, bool]] = None
+        position = self._first_zvariable
+        num_variables = self._num_zvariable
+        for is_zvar in (True, False):
+            for _ in range(0, num_variables):
+                name, vdr_next = self._read_vdr_fast(position)
+                stripped = name.strip()
+                if stripped == target:
+                    return position, is_zvar
+                if fallback is None and stripped.lower() == target_lower:
+                    fallback = (position, is_zvar)
+                position = vdr_next
+            position = self._first_rvariable
+            num_variables = self._num_rvariable
+        if fallback is not None:
+            return fallback
+        raise ValueError(f"Variable name '{variable}' not found.")
+
     def vdr_info(self, variable: Union[str, int]) -> VDR:
         if isinstance(variable, int) and self._num_zvariable > 0 and self._num_rvariable > 0:
             raise ValueError("This CDF has both r and z variables. " "Use variable name instead")
 
         if isinstance(variable, str):
-            # Check z variables for the name, then r variables
-            position = self._first_zvariable
-            num_variables = self._num_zvariable
-            vdr_info = None
-            for zVar in [1, 0]:
-                for _ in range(0, num_variables):
-                    name, vdr_next = self._read_vdr_fast(position)
-                    if name.strip().lower() == variable.strip().lower():
-                        vdr_info = self._read_vdr(position)
-                        break
-                    position = vdr_next
-                position = self._first_rvariable
-                num_variables = self._num_rvariable
-            if vdr_info is None:
-                raise ValueError(f"Variable name '{variable}' not found.")
+            position, _ = self._find_variable_position(variable)
+            vdr_info = self._read_vdr(position)
         elif isinstance(variable, int):
             if self._num_zvariable > 0:
                 position = self._first_zvariable
@@ -534,18 +550,9 @@ class CDF:
         if isinstance(variable, int) and self._num_zvariable > 0 and self._num_rvariable > 0:
             raise ValueError("This CDF has both r and z variables. Use variable name")
         if isinstance(variable, str):
-            position = self._first_zvariable
-            num_variables = self._num_zvariable
-            for zVar in [True, False]:
-                for _ in range(0, num_variables):
-                    name, vdr_next = self._read_vdr_fast(position)
-                    if name.strip().lower() == variable.strip().lower():
-                        vdr_info = self._read_vdr(position)
-                        return self._read_varatts(vdr_info.variable_number, zVar)
-                    position = vdr_next
-                position = self._first_rvariable
-                num_variables = self._num_rvariable
-            raise ValueError(f"No variable by this name: {variable}")
+            position, zVar = self._find_variable_position(variable)
+            vdr_info = self._read_vdr(position)
+            return self._read_varatts(vdr_info.variable_number, zVar)
         elif isinstance(variable, int):
             if self._num_zvariable > 0:
                 num_variable = self._num_zvariable
