@@ -1230,7 +1230,11 @@ def xarray_to_cdf(
                     # ISTP defines BIN_LOCATION as a REAL*4 variable attribute.
                     # See https://spdf.gsfc.nasa.gov/istp_guide/vattributes.html#BIN_LOCATION
                     var_att_dict[att] = [np.float32(att_value), "CDF_REAL4"]
-                elif (att == "VALIDMIN" or att == "VALIDMAX" or att == "FILLVAL") and istp:
+                elif (
+                    att in ("VALIDMIN", "VALIDMAX", "FILLVAL")
+                    and istp
+                    and DATATYPES_TO_STRINGS[cdf_data_type] not in ("CDF_EPOCH", "CDF_EPOCH16", "CDF_TIME_TT2000")
+                ):
                     var_att_dict[att] = [att_value, DATATYPES_TO_STRINGS[cdf_data_type]]
 
             var_spec = {
