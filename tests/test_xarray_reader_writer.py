@@ -491,6 +491,65 @@ def test_xarray_to_cdf_preserves_non_istp_bin_location_type_inference(tmp_path):
         assert bin_location.Data == np.int64(0)
 
 
+def test_xarray_to_cdf_casts_istp_integer_epoch_attributes_to_tt2000(tmp_path):
+    pytest.importorskip("xarray")
+
+    epoch_attrs = {
+        "FILLVAL": -9223372036854775808,
+        "VALIDMIN": 315576066184000000,
+        "VALIDMAX": 3155716869184000000,
+    }
+    delta_attrs = {"FILLVAL": -9223372036854775808, "VALIDMIN": 0, "VALIDMAX": 86000000000000}
+    epoch = xr.Variable(["epoch"], np.array([800000000000000000, 810000000000000000], dtype=np.int64), epoch_attrs)
+    epoch_delta = xr.Variable(["epoch"], np.array([1, 2], dtype=np.int64), {"DEPEND_0": "epoch", **delta_attrs})
+    ds = xr.Dataset(data_vars={"epoch_delta": epoch_delta, "epoch": epoch})
+
+    file_path = tmp_path / "integer_epoch_attributes.cdf"
+
+    xarray_to_cdf(ds, file_path, istp=True)
+
+    with CDF(file_path) as cdf:
+        assert cdf.varinq("epoch").Data_Type_Description == "CDF_TIME_TT2000"
+        for att, value in epoch_attrs.items():
+            epoch_att = cdf.attget(att, "epoch")
+            assert epoch_att.Data_Type == "CDF_TIME_TT2000"
+            assert epoch_att.Data == value
+        # Integer attributes on non-time variables keep the variable's integer type
+        for att, value in delta_attrs.items():
+            delta_att = cdf.attget(att, "epoch_delta")
+            assert delta_att.Data_Type == "CDF_INT8"
+            assert delta_att.Data == value
+
+
+def test_xarray_to_cdf_preserves_istp_float_epoch_attributes(tmp_path):
+    pytest.importorskip("xarray")
+
+    # Float attributes that are not representable as TT2000 must not be cast to it,
+    # otherwise reading them back as datetimes overflows
+    epoch_attrs = {
+        "FILLVAL": np.float32(np.nan),
+        "VALIDMIN": np.float32(-1e38),
+        "VALIDMAX": np.float32(1e38),
+    }
+    epoch = xr.Variable(["epoch"], np.array([800000000000000000, 810000000000000000], dtype=np.int64), epoch_attrs)
+    ds = xr.Dataset(data_vars={"epoch": epoch})
+
+    file_path = tmp_path / "float_epoch_attributes.cdf"
+
+    xarray_to_cdf(ds, file_path, istp=True)
+
+    # We skip the conversion in this case, so the data type for the
+    # attributes remain unchanged.
+    with CDF(file_path) as cdf:
+        assert cdf.varinq("epoch").Data_Type_Description == "CDF_TIME_TT2000"
+        for att in epoch_attrs:
+            assert cdf.attget(att, "epoch").Data_Type != "CDF_TIME_TT2000"
+
+    round_trip = cdf_to_xarray(file_path, to_datetime=True)
+    assert round_trip["epoch"].attrs["VALIDMIN"] == np.float32(-1e38)
+    assert round_trip["epoch"].attrs["VALIDMAX"] == np.float32(1e38)
+
+
 def test_smoke(cdf_path, tmp_path):
     a = cdf_to_xarray(cdf_path, fillval_to_nan=True)
     xarray_to_cdf(a, tmp_path / cdf_path.name)

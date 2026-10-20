@@ -1233,7 +1233,10 @@ def xarray_to_cdf(
                 elif (
                     att in ("VALIDMIN", "VALIDMAX", "FILLVAL")
                     and istp
-                    and DATATYPES_TO_STRINGS[cdf_data_type] not in ("CDF_EPOCH", "CDF_EPOCH16", "CDF_TIME_TT2000")
+                    and (
+                        DATATYPES_TO_STRINGS[cdf_data_type] not in ("CDF_EPOCH", "CDF_EPOCH16", "CDF_TIME_TT2000")
+                        or np.issubdtype(np.asarray(att_value).dtype, np.integer)
+                    )
                 ):
                     var_att_dict[att] = [att_value, DATATYPES_TO_STRINGS[cdf_data_type]]
 
