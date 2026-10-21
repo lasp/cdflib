@@ -147,6 +147,30 @@ def test_breakdown_cdftt2000():
     assert x[8] == 131
 
 
+def test_breakdown_cdftt2000_leap_second():
+    # 2016-12-31T23:59:59, 23:59:60 (leap second), and 2017-01-01T00:00:00
+    t1 = np.int64(536500867184000000)
+    t2 = t1 + 1000000000
+    t3 = t2 + 1000000000
+    assert list(cdfepoch.breakdown_tt2000(t2)) == [2016, 12, 31, 23, 59, 60, 0, 0, 0]
+    # Scalar and array input must break down the same way across a leap second
+    x = cdfepoch.breakdown_tt2000([t1, t2, t3])
+    assert list(x[2]) == [2017, 1, 1, 0, 0, 0, 0, 0, 0]
+    assert np.array_equal(x[2], cdfepoch.breakdown_tt2000(t3))
+    assert np.array_equal(x[1], cdfepoch.breakdown_tt2000(t2))
+    # Breakdown must round-trip back to the original tt2000 value
+    assert cdfepoch.compute_tt2000(x[1]) == t2
+
+
+def test_unixtime_leap_second():
+    t1 = np.int64(536500867184000000)
+    assert cdfepoch.unixtime(t1) == 1483228799.0
+    # Unixtime has no leap seconds, so :59:60 maps to the following midnight
+    assert cdfepoch.unixtime(t1 + 1000000000) == 1483228800.0
+    assert cdfepoch.unixtime(t1 + 2000000000) == 1483228800.0
+    assert cdfepoch.encode(t1 + 1000000000) == "2016-12-31T23:59:60.000000000"
+
+
 @given(random_dtime)
 @settings(max_examples=100)
 def test_compute_cdfepoch(dtime):

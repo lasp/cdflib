@@ -231,8 +231,14 @@ class CDFepoch:
                     date[i - 1] += t[i]
                 else:
                     date[i] = t[i]
+            # Leap seconds break down as :60, which datetime cannot represent; build
+            # :59 and add a second, as unix time ignores leap seconds.
+            leap = date[5] == 60
+            if leap:
+                date[5] = 59
             unixtime.append(
                 datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5], date[6], tzinfo=utc).timestamp()
+                + (1 if leap else 0)
             )
         return _squeeze_or_scalar_real(unixtime)
 
@@ -532,11 +538,9 @@ class CDFepoch:
         epochs[post72 & ~datxzero] -= 1
         xdates = CDFepoch._EPOCHbreakdownTT2000(epochs)
 
-        # If 1 second was subtracted, add 1 second back in
-        # Be careful not to go 60 or above
+        # If 1 second was subtracted, add 1 second back in. A result of 60 is
+        # kept as second 60 (23:59:60), as the CDF library does for leap seconds.
         xdates[5, post72 & ~datxzero] += 1
-        xdates[4, post72 & ~datxzero] += np.floor(xdates[5, post72 & ~datxzero] / 60.0)
-        xdates[5, post72 & ~datxzero] = xdates[5, post72 & ~datxzero] % 60
 
         # Set toutcs, then loop through and correct for pre-1972
         toutcs[:6, :] = xdates[:6, :]
@@ -798,7 +802,9 @@ class CDFepoch:
             idxs = (j == -1) & (nanosecs >= CDFepoch.NST[i])
             j[idxs] = i
             if i < (CDFepoch.NDAT - 1):
-                overflow = nanosecs + 1000000000 >= CDFepoch.NST[i + 1]
+                # Only values in this leap second interval overflow; values already
+                # past it keep j > i and must not be flagged.
+                overflow = (j == i) & (nanosecs + 1000000000 >= CDFepoch.NST[i + 1])
                 da[overflow, 1] = 1.0
             if np.all(j > 0):
                 break
