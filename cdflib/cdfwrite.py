@@ -999,6 +999,15 @@ class CDF:
         if isinstance(indata, dict):
             indata = indata["Data"]
 
+        # Validate EPOCH16 values without splitting their real and imaginary parts.
+        if dataType == self.CDF_EPOCH16 and not isinstance(indata, bytes):
+            try:
+                indata = np.asarray(indata, dtype=np.complex128)
+            except (TypeError, ValueError) as e:
+                raise ValueError(
+                    f"Data for variable {var} must be castable to a 128-bit complex number when data type is CDF_EPOCH16."
+                ) from e
+
         # Convert to byte stream
         recs, data = self._convert_data(dataType, numElems, numValues, indata)
 
