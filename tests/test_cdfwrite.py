@@ -333,6 +333,36 @@ def test_nonsparse_zvariable_blocking(tmp_path):
     assert var[99999] == 99999
 
 
+@pytest.mark.parametrize("compression", [0, 6])
+@pytest.mark.parametrize(
+    "data",
+    [
+        complex(63871286400, 123456789012),
+        [complex(63871286400, 123456789012)],
+        np.array([complex(63871286400, 123456789012)], dtype=np.complex128),
+        np.array([complex(63871286400, 123456789012), complex(63871286401, 987654321098)], dtype=np.complex128),
+    ],
+)
+def test_nonsparse_epoch16_roundtrip(tmp_path, compression, data):
+    fn = tmp_path / fnbasic
+    var_spec = {
+        "Variable": "Epoch",
+        "Data_Type": cdfwrite.CDF.CDF_EPOCH16,
+        "Num_Elements": 1,
+        "Rec_Vary": True,
+        "Dim_Sizes": [],
+        "Compress": compression,
+    }
+
+    with cdfwrite.CDF(fn) as writer:
+        writer.write_var(var_spec, var_data=data)
+
+    expected = np.atleast_1d(data)
+    with cdf_read(fn) as reader:
+        assert reader.varinq("Epoch").Last_Rec == len(expected) - 1
+        np.testing.assert_array_equal(reader.varget("Epoch"), expected)
+
+
 def test_sparse_virtual_zvariable_blocking(tmp_path):
     # Setup the test_file
     fn = tmp_path / fnbasic
