@@ -99,12 +99,10 @@ def _convert_cdf_time_types(
 
 
 def _convert_cdf_to_dicts(
-    filename: Union[str, Path], to_datetime: bool = False, to_unixtime: bool = False
+    cdf_file: CDF, to_datetime: bool = False, to_unixtime: bool = False
 ) -> Tuple[Dict[str, List[Union[str, np.ndarray]]], Dict[str, Any], Dict[str, npt.NDArray], Dict[str, VDRInfo]]:
-    # Open the CDF file
     # Converts the entire CDF file into python dictionary objects
 
-    cdf_file = CDF(filename, string_encoding="latin-1")
     cdf_info = cdf_file.cdf_info()
     all_cdf_variables = cdf_info.rVariables + cdf_info.zVariables
 
@@ -685,14 +683,16 @@ def _verify_dimension_sizes(created_data_vars: Dict[str, xr.Variable], created_c
                     )
 
 
-def cdf_to_xarray(filename: str, to_datetime: bool = True, to_unixtime: bool = False, fillval_to_nan: bool = False) -> xr.Dataset:
+def cdf_to_xarray(
+    filename: Union[str, Path, CDF], to_datetime: bool = True, to_unixtime: bool = False, fillval_to_nan: bool = False
+) -> xr.Dataset:
     """
     This function converts CDF files into XArray Dataset Objects.
 
     Parameters
     ----------
-    filename :  str
-        The path to the CDF file to read
+    filename : str, Path or CDF
+        The path to the CDF file to read, or an already-open `CDF` (e.g. one reading from S3 or a URL), which is used as-is
     to_datetime : bool, optional
         Whether or not to convert CDF_EPOCH/EPOCH_16/TT2000 to datetime64, or leave them as is
     to_unixtime :  bool, optional
@@ -776,12 +776,14 @@ def cdf_to_xarray(filename: str, to_datetime: bool = True, to_unixtime: bool = F
         4. Create an XArray Dataset objects with the data variables, coordinate variables, and global attributes.
     """
 
+    cdf_file = filename if isinstance(filename, CDF) else CDF(filename, string_encoding="latin-1")
+
     if to_datetime and to_unixtime:
         to_datetime = False
 
     # Convert the CDF file into a series of dicts, so we don't need to keep reading the file
     global_attributes, all_variable_attributes, all_variable_data, all_variable_properties = _convert_cdf_to_dicts(
-        filename, to_datetime=to_datetime, to_unixtime=to_unixtime
+        cdf_file, to_datetime=to_datetime, to_unixtime=to_unixtime
     )
 
     created_vars, depend_dimensions = _generate_xarray_data_variables(

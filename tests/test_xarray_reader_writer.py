@@ -555,6 +555,13 @@ def test_smoke(cdf_path, tmp_path):
     xarray_to_cdf(a, tmp_path / cdf_path.name)
 
 
+def test_open_cdf_matches_path(cdf_path):
+    xr.testing.assert_identical(
+        cdf_to_xarray(CDF(cdf_path, string_encoding="latin-1")),
+        cdf_to_xarray(cdf_path),
+    )
+
+
 def test_datetime64_conversion():
     # verifying that everything writes correctly
     pytest.importorskip("xarray")
